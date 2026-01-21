@@ -1,65 +1,225 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+    // State tipini boolean olarak belirttik (Typescript genellikle bunu otomatik anlar ama açık yazmak iyidir)
+    const [menuOpen, setMenuOpen] = useState<boolean>(false);
+
+    useEffect(() => {
+        // --- SLIDER MANTIĞI ---
+        let currentSlide = 0;
+        // NodeListOf<HTMLElement> diyerek TS'e bunun bir HTML element listesi olduğunu söylüyoruz
+        const slides = document.querySelectorAll('.slide') as NodeListOf<HTMLElement>;
+        const totalSlides = slides.length;
+
+        if (totalSlides > 0) {
+            // İlk slide kontrolü
+            if (slides[0]) {
+                slides[0].classList.add('active');
+            }
+
+            const nextSlide = () => {
+                // Soru işareti (?) ile "element varsa işlem yap" diyoruz (Optional Chaining)
+                slides[currentSlide]?.classList.remove('active');
+                currentSlide = (currentSlide + 1) % totalSlides;
+                slides[currentSlide]?.classList.add('active');
+            };
+
+            const interval = setInterval(nextSlide, 4000);
+            return () => clearInterval(interval);
+        }
+    }, []);
+
+    // --- SMOOTH SCROLL MANTIĞI ---
+    useEffect(() => {
+        const anchors = document.querySelectorAll('a[href^="#"]');
+
+        // Event tipini belirttik (Event)
+        const handleScroll = (e: Event) => {
+            e.preventDefault();
+
+            // Tıklanan elemanın bir HTMLAnchorElement olduğunu belirttik
+            const anchor = e.currentTarget as HTMLAnchorElement;
+            const href = anchor.getAttribute('href');
+
+            if (href) {
+                const target = document.querySelector(href);
+                if (target) {
+                    setMenuOpen(false); // Mobilde menüyü kapat
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+        };
+
+        anchors.forEach(anchor => {
+            anchor.addEventListener('click', handleScroll);
+        });
+
+        return () => {
+            anchors.forEach(anchor => {
+                anchor.removeEventListener('click', handleScroll);
+            });
+        };
+    }, []);
+
+    return (
+        <>
+            <header>
+                <nav>
+                    <div className="logo-container">
+                        <Image
+                            width={60}
+                            height={60}
+                            src="/logo.png"
+                            alt="Lavinya Perde Logo"
+                            className="logo"
+                            priority // Logo'nun hızlı yüklenmesi için
+                        />
+                        <span style={{ fontSize: "1.5rem", fontWeight: "bold" }}>LAVİNYA PERDE</span>
+                    </div>
+
+                    {/* Hamburger Butonu */}
+                    <div
+                        className={`hamburger ${menuOpen ? 'active' : ''}`}
+                        onClick={() => setMenuOpen(!menuOpen)}
+                    >
+                        <span className="bar"></span>
+                        <span className="bar"></span>
+                        <span className="bar"></span>
+                    </div>
+
+                    {/* Menü Linkleri */}
+                    <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
+                        <li><a href="#anasayfa">Ana Sayfa</a></li>
+                        <li><a href="#hizmetler">Hizmetler</a></li>
+                        <li><a href="#galeri">Galeri</a></li>
+                        <li><a href="#hakkimizda">Hakkımızda</a></li>
+                        <li><a href="#iletisim">İletişim</a></li>
+                    </ul>
+                </nav>
+            </header>
+
+            <section id="anasayfa" className="hero">
+                <div className="hero-slider">
+                    {/* CSS tarafında resimler tanımlı, burada sadece divler var */}
+                    <div className="slide active"></div>
+                    <div className="slide"></div>
+                    <div className="slide"></div>
+                    <div className="slide"></div>
+                    <div className="slide"></div>
+                </div>
+                <div className="hero-overlay"></div>
+                <div className="hero-content">
+                    <h1>Evinize Zarafet Katın</h1>
+                    <p>Profesyonel Perde ve Dekorasyon Çözümleri</p>
+                    <a href="#iletisim" className="cta-button">Hemen İletişime Geçin</a>
+                </div>
+            </section>
+
+            <section id="hizmetler">
+                <h2 className="section-title">Hizmetlerimiz</h2>
+                <div className="services-grid">
+                    <div className="service-card">
+                        <div className="service-icon">🪟</div>
+                        <h3>Fon Perde</h3>
+                        <p>Kaliteli kumaşlar ve özel dikim ile evinize uygun fon perdeler</p>
+                    </div>
+                    <div className="service-card">
+                        <div className="service-icon">✨</div>
+                        <h3>Tül Perde</h3>
+                        <p>Işık geçiren zarif tül perdelerle mekanlarınıza ferahlık katın</p>
+                    </div>
+                    <div className="service-card">
+                        <div className="service-icon">📏</div>
+                        <h3>Stor Perde</h3>
+                        <p>Modern ve pratik stor perde sistemleri</p>
+                    </div>
+                    <div className="service-card">
+                        <div className="service-icon">🏠</div>
+                        <h3>Halı</h3>
+                        <p>Kaliteli ve şık halı modelleri ile mekanlarınıza sıcaklık</p>
+                    </div>
+                    <div className="service-card">
+                        <div className="service-icon">🎨</div>
+                        <h3>Duvar Kağıdı</h3>
+                        <p>Modern desenler ve renklerle duvarlarınıza yeni bir soluk</p>
+                    </div>
+                    <div className="service-card">
+                        <div className="service-icon">🔧</div>
+                        <h3>Montaj Hizmeti</h3>
+                        <p>Profesyonel ölçüm ve montaj hizmeti</p>
+                    </div>
+                    <div className="service-card">
+                        <div className="service-icon">💼</div>
+                        <h3>Kurumsal Çözümler</h3>
+                        <p>Otel, ofis ve toplu konutlar için özel projeler</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="galeri">
+                <h2 className="section-title">Referans Çalışmalarımız</h2>
+                <div className="gallery-grid">
+                    {/* Galeri öğeleri - İleride buraya Image componentleri gelebilir */}
+                    <div className="gallery-item"></div>
+                    <div className="gallery-item"></div>
+                    <div className="gallery-item"></div>
+                    <div className="gallery-item"></div>
+                    <div className="gallery-item"></div>
+                    <div className="gallery-item"></div>
+                </div>
+            </section>
+
+            <section id="hakkimizda">
+                <h2 className="section-title">Hakkımızda</h2>
+                <div className="about-content">
+                    <div className="about-text">
+                        <h3>Lavinya Perde</h3>
+                        <p>Yıllardır perde ve dekorasyon sektöründe hizmet veren Lavinya Perde, kaliteli ürünler ve güler yüzlü
+                            hizmet anlayışıyla müşterilerine en iyi çözümleri sunmaktadır.</p>
+                        <p>Geniş kumaş seçeneklerimiz, profesyonel ekibimiz ve müşteri memnuniyeti odaklı yaklaşımımızla evinize
+                            değer katıyoruz.</p>
+                        <p>Her projede özenle çalışıyor, detaylara dikkat ediyor ve mekanlarınızı hayalinizdeki gibi
+                            tasarlıyoruz.</p>
+                    </div>
+                    <div className="about-image">🏠</div>
+                </div>
+            </section>
+
+            <section id="iletisim">
+                <h2 className="section-title">İletişim</h2>
+                <div className="contact-grid">
+                    <div className="contact-item">
+                        <div className="contact-icon">📱</div>
+                        <h3>Telefon</h3>
+                        <p><a href="tel:+905055102287">+90 505 510 22 87</a></p>
+                    </div>
+                    <div className="contact-item">
+                        <div className="contact-icon">📧</div>
+                        <h3>E-posta</h3>
+                        <p><a href="mailto:info@lavinyaperde.com">info@lavinyaperde.com</a></p>
+                    </div>
+                    <div className="contact-item">
+                        <div className="contact-icon">📍</div>
+                        <h3>Adres</h3>
+                        <p>Balıkesir, Türkiye</p>
+                    </div>
+                    <div className="contact-item">
+                        <div className="contact-icon">🕐</div>
+                        <h3>Çalışma Saatleri</h3>
+                        <p>Pzt-Cmt: 09:00 - 18:00<br />Pazar: Kapalı</p>
+                    </div>
+                </div>
+            </section>
+
+            <footer>
+                <p>&copy; 2026 Lavinya Perde. Tüm hakları saklıdır.</p>
+            </footer>
+        </>
+    );
 }
