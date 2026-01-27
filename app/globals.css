@@ -157,7 +157,6 @@ nav a:hover::after {
     height: 100%;
     z-index: 0;
     transform: translateZ(0);
-    will-change: contents;
 }
 
 .slide {
@@ -168,7 +167,6 @@ nav a:hover::after {
     height: 100%;
     opacity: 0;
     transition: opacity 1.5s ease-in-out;
-    will-change: opacity;
     background-color: #1a1a1a;
 }
 
@@ -179,6 +177,7 @@ nav a:hover::after {
 .slide.active img {
     opacity: 1;
     animation: kenburns 20s ease-in-out infinite alternate;
+    will-change: transform;
 }
 
 /* Ken Burns Zoom Effect - Sadece aktif slide'da */
@@ -195,7 +194,6 @@ nav a:hover::after {
     object-fit: cover;
     width: 100%;
     height: 100%;
-    will-change: transform;
     backface-visibility: hidden;
     transform: translateZ(0);
     opacity: 0;

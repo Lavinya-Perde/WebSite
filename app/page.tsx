@@ -57,6 +57,9 @@ export default function Home() {
         let currentSlide = 0;
         const slides = document.querySelectorAll('.slide') as NodeListOf<HTMLElement>;
         const totalSlides = slides.length;
+        const heroSection = document.querySelector('.hero') as HTMLElement;
+        let interval: NodeJS.Timeout | null = null;
+        let isVisible = true;
 
         if (totalSlides > 0) {
             if (slides[0]) {
@@ -64,13 +67,45 @@ export default function Home() {
             }
 
             const nextSlide = () => {
+                if (!isVisible) return;
                 slides[currentSlide]?.classList.remove('active');
                 currentSlide = (currentSlide + 1) % totalSlides;
                 slides[currentSlide]?.classList.add('active');
             };
 
-            const interval = setInterval(nextSlide, 5000);
-            return () => clearInterval(interval);
+            // Intersection Observer - Slider görünür değilken durdur
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        isVisible = entry.isIntersecting;
+                        if (entry.isIntersecting) {
+                            // Görünür olduğunda interval'ı başlat
+                            if (!interval) {
+                                interval = setInterval(nextSlide, 5000);
+                            }
+                        } else {
+                            // Görünür değilse interval'ı durdur
+                            if (interval) {
+                                clearInterval(interval);
+                                interval = null;
+                            }
+                        }
+                    });
+                },
+                { threshold: 0.1 }
+            );
+
+            if (heroSection) {
+                observer.observe(heroSection);
+            }
+
+            // İlk başlatma
+            interval = setInterval(nextSlide, 5000);
+
+            return () => {
+                if (interval) clearInterval(interval);
+                if (heroSection) observer.unobserve(heroSection);
+            };
         }
     }, []);
 
