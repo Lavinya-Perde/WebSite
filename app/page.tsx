@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 export default function Home() {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+    const [currentSlide, setCurrentSlide] = useState<number>(0);
+    const [sliderVisible, setSliderVisible] = useState<boolean>(true);
 
     // Slider resimleri
     const sliderImages = [
@@ -52,62 +54,76 @@ export default function Home() {
         checkAuth();
     }, []);
 
-    useEffect(() => {
-        // SLIDER MANTIĞI
-        let currentSlide = 0;
+    // Slider geçişi
+    const goToSlide = (index: number) => {
         const slides = document.querySelectorAll('.slide') as NodeListOf<HTMLElement>;
-        const totalSlides = slides.length;
+        slides.forEach((slide, i) => {
+            slide.classList.toggle('active', i === index);
+        });
+        setCurrentSlide(index);
+    };
+
+    const nextSlide = () => {
+        const newIndex = (currentSlide + 1) % sliderImages.length;
+        goToSlide(newIndex);
+    };
+
+    const prevSlide = () => {
+        const newIndex = currentSlide === 0 ? sliderImages.length - 1 : currentSlide - 1;
+        goToSlide(newIndex);
+    };
+
+    useEffect(() => {
+        // İlk slide'ı aktif yap
+        const slides = document.querySelectorAll('.slide') as NodeListOf<HTMLElement>;
+        if (slides.length > 0 && slides[0]) {
+            slides[0].classList.add('active');
+        }
+
         const heroSection = document.querySelector('.hero') as HTMLElement;
         let interval: NodeJS.Timeout | null = null;
-        let isVisible = true;
 
-        if (totalSlides > 0) {
-            if (slides[0]) {
-                slides[0].classList.add('active');
-            }
+        // Intersection Observer - Slider görünür değilken durdur
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    setSliderVisible(entry.isIntersecting);
 
-            const nextSlide = () => {
-                if (!isVisible) return;
-                slides[currentSlide]?.classList.remove('active');
-                currentSlide = (currentSlide + 1) % totalSlides;
-                slides[currentSlide]?.classList.add('active');
-            };
-
-            // Intersection Observer - Slider görünür değilken durdur
-            const observer = new IntersectionObserver(
-                (entries) => {
-                    entries.forEach((entry) => {
-                        isVisible = entry.isIntersecting;
-                        if (entry.isIntersecting) {
-                            // Görünür olduğunda interval'ı başlat
-                            if (!interval) {
-                                interval = setInterval(nextSlide, 5000);
-                            }
-                        } else {
-                            // Görünür değilse interval'ı durdur
-                            if (interval) {
-                                clearInterval(interval);
-                                interval = null;
-                            }
+                    if (entry.isIntersecting) {
+                        // Görünür olduğunda interval'ı başlat
+                        if (!interval) {
+                            interval = setInterval(() => {
+                                setCurrentSlide(prev => {
+                                    const newIndex = (prev + 1) % sliderImages.length;
+                                    const slides = document.querySelectorAll('.slide') as NodeListOf<HTMLElement>;
+                                    slides.forEach((slide, i) => {
+                                        slide.classList.toggle('active', i === newIndex);
+                                    });
+                                    return newIndex;
+                                });
+                            }, 8000);
                         }
-                    });
-                },
-                { threshold: 0.1 }
-            );
+                    } else {
+                        // Görünür değilse interval'ı durdur
+                        if (interval) {
+                            clearInterval(interval);
+                            interval = null;
+                        }
+                    }
+                });
+            },
+            { threshold: 0.2 }
+        );
 
-            if (heroSection) {
-                observer.observe(heroSection);
-            }
-
-            // İlk başlatma
-            interval = setInterval(nextSlide, 5000);
-
-            return () => {
-                if (interval) clearInterval(interval);
-                if (heroSection) observer.unobserve(heroSection);
-            };
+        if (heroSection) {
+            observer.observe(heroSection);
         }
-    }, []);
+
+        return () => {
+            if (interval) clearInterval(interval);
+            if (heroSection) observer.unobserve(heroSection);
+        };
+    }, [sliderImages.length]);
 
     // SMOOTH SCROLL
     useEffect(() => {
@@ -187,8 +203,8 @@ export default function Home() {
                                 src={src}
                                 alt={`Slider ${index + 1}`}
                                 fill
-                                priority
-                                loading="eager"
+                                priority={index < 2}
+                                loading={index < 2 ? "eager" : "lazy"}
                                 quality={50}
                                 placeholder="blur"
                                 blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxYTFhMWEiLz48L3N2Zz4="
@@ -209,6 +225,12 @@ export default function Home() {
                         </svg>
                     </a>
                 </div>
+                <button className="slider-btn slider-btn-prev" onClick={prevSlide} aria-label="Önceki Slide">
+                    ‹
+                </button>
+                <button className="slider-btn slider-btn-next" onClick={nextSlide} aria-label="Sonraki Slide">
+                    ›
+                </button>
                 <div className="scroll-indicator"></div>
             </section>
 
