@@ -32,7 +32,7 @@ export default function PerdeHesaplama() {
                 body: JSON.stringify({ token }),
             });
             if (!response.ok) {
-                window.location.href = "/";
+                //window.location.href = "/";
                 return;
             }
         }
