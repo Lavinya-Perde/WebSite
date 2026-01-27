@@ -12,14 +12,15 @@ export default function Login() {
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
     const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
+    e.preventDefault();
 
-        // Validasyon
-        if (!email || !password) {
-            alert("Lütfen tüm alanları doldurun!");
-            return;
-        }
+    // Validasyon
+    if (!email || !password) {
+        alert("Lütfen tüm alanları doldurun!");
+        return;
+    }
 
+    try {
         const response = await fetch('/api/auth', {
             method: 'POST',
             headers: {
@@ -29,13 +30,19 @@ export default function Login() {
         });
 
         if (response.ok) {
-            const token = await response.text();
-            localStorage.setItem("token", token);
+            // ✅ JSON olarak parse et
+            const data = await response.json();
+            localStorage.setItem("token", data.token);
             router.push("/perde-hesaplama");
-        }else {
-            alert("Hatalı kullanıcı adı veya şifre!");
+        } else {
+            const error = await response.json();
+            alert(error.error || "Hatalı kullanıcı adı veya şifre!");
         }
-    };
+    } catch (error) {
+        console.error("Login hatası:", error);
+        alert("Bir hata oluştu. Lütfen tekrar deneyin.");
+    }
+};
 
     return (
         <>
