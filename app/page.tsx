@@ -17,48 +17,34 @@ export default function Home() {
         { src: '/gallery/galeri6.jpg', alt: 'Kurumsal proje' },
     ];
 
-    // ✅ Token kontrolü - Sayfa yüklendiğinde
+    // Token kontrolü - Sayfa yüklendiğinde
     useEffect(() => {
         const checkAuth = async () => {
             const token = localStorage.getItem("token");
-            console.log("📌 Token alındı:", token);
             
             if (!token) {
-                console.log("❌ Token yok!");
                 setIsLoggedIn(false);
                 return;
             }
 
             try {
-                console.log("🔄 Verify API'ye istek gönderiliyor...");
                 const response = await fetch('/api/verify', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token })
                 });
                 
-                console.log("📥 Response status:", response.status);
                 const data = await response.json();
-                console.log("📦 Response data:", data);
-                console.log("✅ data.valid:", data.valid);
-                
                 setIsLoggedIn(data.valid === true);
-                console.log("🎯 isLoggedIn set edildi:", data.valid === true);
             } catch (error) {
-                console.error("❌ Auth check error:", error);
                 setIsLoggedIn(false);
             }
         };
         checkAuth();
     }, []);
 
-    // State değişimini izle
     useEffect(() => {
-        console.log("🔍 isLoggedIn state değeri:", isLoggedIn);
-    }, [isLoggedIn]);
-
-    useEffect(() => {
-        // --- SLIDER MANTIĞI ---
+        // SLIDER MANTIĞI
         let currentSlide = 0;
         const slides = document.querySelectorAll('.slide') as NodeListOf<HTMLElement>;
         const totalSlides = slides.length;
@@ -79,7 +65,7 @@ export default function Home() {
         }
     }, []);
 
-    // --- SMOOTH SCROLL MANTIĞI ---
+    // SMOOTH SCROLL MANTIĞI
     useEffect(() => {
         const anchors = document.querySelectorAll('a[href^="#"]');
 
@@ -111,9 +97,6 @@ export default function Home() {
             });
         };
     }, []);
-
-    // ✅ Debug için render öncesi log
-    console.log("🖥️ Render'da isLoggedIn:", isLoggedIn);
 
     return (
         <>
@@ -148,7 +131,6 @@ export default function Home() {
                         <li><a href="#galeri">Galeri</a></li>
                         <li><a href="#hakkimizda">Hakkımızda</a></li>
                         <li><a href="#iletisim">İletişim</a></li>
-                        {/* ✅ Sadece giriş yapılmışsa göster */}
                         {isLoggedIn && <li><a href="/perde-hesaplama">Hesaplama</a></li>}
                     </ul>
                 </nav>
