@@ -4,24 +4,30 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-    // State tipini boolean olarak belirttik (Typescript genellikle bunu otomatik anlar ama açık yazmak iyidir)
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
+
+    // Galeri resimleri
+    const galleryImages = [
+        { src: '/gallery/galeri1.jpg', alt: 'Fon perde uygulaması' },
+        { src: '/gallery/galeri2.jpg', alt: 'Tül perde montajı' },
+        { src: '/gallery/galeri3.jpg', alt: 'Stor perde sistemi' },
+        { src: '/gallery/galeri4.jpg', alt: 'Halı döşeme' },
+        { src: '/gallery/galeri5.jpg', alt: 'Duvar kağıdı uygulaması' },
+        { src: '/gallery/galeri6.jpg', alt: 'Kurumsal proje' },
+    ];
 
     useEffect(() => {
         // --- SLIDER MANTIĞI ---
         let currentSlide = 0;
-        // NodeListOf<HTMLElement> diyerek TS'e bunun bir HTML element listesi olduğunu söylüyoruz
         const slides = document.querySelectorAll('.slide') as NodeListOf<HTMLElement>;
         const totalSlides = slides.length;
 
         if (totalSlides > 0) {
-            // İlk slide kontrolü
             if (slides[0]) {
                 slides[0].classList.add('active');
             }
 
             const nextSlide = () => {
-                // Soru işareti (?) ile "element varsa işlem yap" diyoruz (Optional Chaining)
                 slides[currentSlide]?.classList.remove('active');
                 currentSlide = (currentSlide + 1) % totalSlides;
                 slides[currentSlide]?.classList.add('active');
@@ -36,18 +42,16 @@ export default function Home() {
     useEffect(() => {
         const anchors = document.querySelectorAll('a[href^="#"]');
 
-        // Event tipini belirttik (Event)
         const handleScroll = (e: Event) => {
             e.preventDefault();
 
-            // Tıklanan elemanın bir HTMLAnchorElement olduğunu belirttik
             const anchor = e.currentTarget as HTMLAnchorElement;
             const href = anchor.getAttribute('href');
 
             if (href) {
                 const target = document.querySelector(href);
                 if (target) {
-                    setMenuOpen(false); // Mobilde menüyü kapat
+                    setMenuOpen(false);
                     target.scrollIntoView({
                         behavior: 'smooth',
                         block: 'start'
@@ -78,7 +82,7 @@ export default function Home() {
                             src="/logo.png"
                             alt="Lavinya Perde Logo"
                             className="logo"
-                            priority // Logo'nun hızlı yüklenmesi için
+                            priority
                         />
                         <span style={{ fontSize: "1.5rem", fontWeight: "bold" }}>LAVİNYA PERDE</span>
                     </div>
@@ -100,13 +104,13 @@ export default function Home() {
                         <li><a href="#galeri">Galeri</a></li>
                         <li><a href="#hakkimizda">Hakkımızda</a></li>
                         <li><a href="#iletisim">İletişim</a></li>
+                        <li><a href="/perde-hesaplama">Hesaplama</a></li>
                     </ul>
                 </nav>
             </header>
 
             <section id="anasayfa" className="hero">
                 <div className="hero-slider">
-                    {/* CSS tarafında resimler tanımlı, burada sadece divler var */}
                     <div className="slide active"></div>
                     <div className="slide"></div>
                     <div className="slide"></div>
@@ -165,13 +169,17 @@ export default function Home() {
             <section id="galeri">
                 <h2 className="section-title">Referans Çalışmalarımız</h2>
                 <div className="gallery-grid">
-                    {/* Galeri öğeleri - İleride buraya Image componentleri gelebilir */}
-                    <div className="gallery-item"></div>
-                    <div className="gallery-item"></div>
-                    <div className="gallery-item"></div>
-                    <div className="gallery-item"></div>
-                    <div className="gallery-item"></div>
-                    <div className="gallery-item"></div>
+                    {galleryImages.map((image, index) => (
+                        <div key={index} className="gallery-item" data-title={image.alt}>
+                            <Image
+                                src={image.src}
+                                alt={image.alt}
+                                fill
+                                style={{ objectFit: 'cover' }}
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            />
+                        </div>
+                    ))}
                 </div>
             </section>
 
