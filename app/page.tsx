@@ -52,6 +52,24 @@ export default function Home() {
         checkAuth();
     }, []);
 
+    // Slider resimlerini arka planda preload et
+    useEffect(() => {
+        // İlk resim zaten priority ile yükleniyor, diğerlerini sonradan yükle
+        const preloadImages = () => {
+            sliderImages.slice(1).forEach((src) => {
+                const link = document.createElement('link');
+                link.rel = 'preload';
+                link.as = 'image';
+                link.href = src;
+                document.head.appendChild(link);
+            });
+        };
+
+        // Sayfa yüklendikten 500ms sonra diğer resimleri yükle
+        const timer = setTimeout(preloadImages, 500);
+        return () => clearTimeout(timer);
+    }, [sliderImages]);
+
     useEffect(() => {
         // SLIDER MANTIĞI
         let currentSlide = 0;
@@ -152,8 +170,8 @@ export default function Home() {
                                 src={src}
                                 alt={`Slider ${index + 1}`}
                                 fill
-                                priority
-                                loading="eager"
+                                priority={index === 0}
+                                loading={index === 0 ? "eager" : "lazy"}
                                 placeholder="blur"
                                 blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxYTFhMWEiLz48L3N2Zz4="
                                 style={{ objectFit: 'cover' }}
