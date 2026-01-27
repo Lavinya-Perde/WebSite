@@ -2,16 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
 export async function POST(request: NextRequest) {
-    const { USER, PASSWORD } = process.env;
-    const { email, password } = await request.json();
-    
-    if (email === USER && password === PASSWORD) {
-        const token = jwt.sign({ email }, "secret", { expiresIn: "30d" });
-        return NextResponse.json({ token }, { status: 200 });
-    } else {
-        return NextResponse.json(
-            { error: "Hatalı kullanıcı adı veya şifre" }, 
-            { status: 401 }
-        );
+    try {
+        const { token } = await request.json();
+
+        if (!token) {
+            return NextResponse.json({ valid: false }, { status: 401 });
+        }
+        jwt.verify(token, "secret");
+        
+        return NextResponse.json({ valid: true }, { status: 200 });
+        
+    } catch (error) {
+        return NextResponse.json({ valid: false }, { status: 401 });
     }
 }
