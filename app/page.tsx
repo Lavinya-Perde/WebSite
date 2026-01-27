@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
     // Galeri resimleri
     const galleryImages = [
@@ -15,6 +16,27 @@ export default function Home() {
         { src: '/gallery/galeri5.jpg', alt: 'Duvar kağıdı uygulaması' },
         { src: '/gallery/galeri6.jpg', alt: 'Kurumsal proje' },
     ];
+
+    // ✅ Token kontrolü - Sayfa yüklendiğinde
+    useEffect(() => {
+        const checkAuth = async () => {
+            const token = localStorage.getItem("token");
+            if (token) {
+                try {
+                    const response = await fetch('/api/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token })
+                    });
+                    const data = await response.json();
+                    setIsLoggedIn(data.valid);
+                } catch (error) {
+                    setIsLoggedIn(false);
+                }
+            }
+        };
+        checkAuth();
+    }, []);
 
     useEffect(() => {
         // --- SLIDER MANTIĞI ---
@@ -104,11 +126,13 @@ export default function Home() {
                         <li><a href="#galeri">Galeri</a></li>
                         <li><a href="#hakkimizda">Hakkımızda</a></li>
                         <li><a href="#iletisim">İletişim</a></li>
-                        <li><a href="/perde-hesaplama">Hesaplama</a></li>
+                        {/* ✅ Sadece giriş yapılmışsa göster */}
+                        {isLoggedIn && <li><a href="/perde-hesaplama">Hesaplama</a></li>}
                     </ul>
                 </nav>
             </header>
 
+            {/* ... Geri kalan kodlar aynı ... */}
             <section id="anasayfa" className="hero">
                 <div className="hero-slider">
                     <div className="slide active"></div>
@@ -139,7 +163,7 @@ export default function Home() {
                         <p>Işık geçiren zarif tül perdelerle mekanlarınıza ferahlık katın</p>
                     </div>
                     <div className="service-card">
-                        <div className="service-icon">📏</div>
+                        <div className="service-icon">🔲</div>
                         <h3>Stor Perde</h3>
                         <p>Modern ve pratik stor perde sistemleri</p>
                     </div>
