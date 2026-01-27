@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function PerdeHesaplama() {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
@@ -16,6 +16,28 @@ export default function PerdeHesaplama() {
         tahminiTutar: number;
     } | null>(null);
 
+
+    useEffect(() => {
+        async function verifyToken() {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                window.location.href = "/";
+                return;
+            }
+            const response = await fetch('/api/token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token }),
+            });
+            if (!response.ok) {
+                window.location.href = "/";
+                return;
+            }
+        }
+        verifyToken();
+    }, []);
     const hesapla = () => {
         const g = parseFloat(genislik);
         const y = parseFloat(yukseklik);

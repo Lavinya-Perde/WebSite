@@ -11,14 +11,7 @@ export default function Login() {
     const [password, setPassword] = useState<string>("");
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
-    // Statik kullanıcı bilgileri
-    const VALID_EMAIL = process.env.EMAIL;
-    const VALID_PASSWORD = process.env.PASSWORD;
-    console.log(process.env.EMAIL)
-    console.log(process.env.PASSWORD)
-
-
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
 
         // Validasyon
@@ -27,12 +20,19 @@ export default function Login() {
             return;
         }
 
-        // Kullanıcı adı ve şifre kontrolü
-        if (email === VALID_EMAIL && password === VALID_PASSWORD) {
-            alert("Giriş başarılı!");
-            // Başarılı girişte ana sayfaya yönlendir
-            router.push("/");
-        } else {
+        const response = await fetch('/api/auth', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+        });
+
+        if (response.ok) {
+            const token = await response.text();
+            localStorage.setItem("token", token);
+            router.push("/perde-hesaplama");
+        }else {
             alert("Hatalı kullanıcı adı veya şifre!");
         }
     };
