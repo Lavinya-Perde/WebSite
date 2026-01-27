@@ -17,7 +17,7 @@ export default function Home() {
         { src: '/gallery/galeri6.jpg', alt: 'Kurumsal proje' },
     ];
 
-    // Token kontrolü - Sayfa yüklendiğinde
+    // Token kontrolü
     useEffect(() => {
         const checkAuth = async () => {
             const token = localStorage.getItem("token");
@@ -60,18 +60,17 @@ export default function Home() {
                 slides[currentSlide]?.classList.add('active');
             };
 
-            const interval = setInterval(nextSlide, 4000);
+            const interval = setInterval(nextSlide, 5000);
             return () => clearInterval(interval);
         }
     }, []);
 
-    // SMOOTH SCROLL MANTIĞI
+    // SMOOTH SCROLL
     useEffect(() => {
         const anchors = document.querySelectorAll('a[href^="#"]');
 
         const handleScroll = (e: Event) => {
             e.preventDefault();
-
             const anchor = e.currentTarget as HTMLAnchorElement;
             const href = anchor.getAttribute('href');
 
@@ -100,21 +99,21 @@ export default function Home() {
 
     return (
         <>
+            {/* HEADER */}
             <header>
                 <nav>
                     <div className="logo-container">
                         <Image
-                            width={60}
-                            height={60}
+                            width={50}
+                            height={50}
                             src="/logo.png"
                             alt="Lavinya Perde Logo"
                             className="logo"
                             priority
                         />
-                        <span style={{ fontSize: "1.5rem", fontWeight: "bold" }}>LAVİNYA PERDE</span>
+                        <span className="logo-text">LAVİNYA PERDE</span>
                     </div>
 
-                    {/* Hamburger Butonu */}
                     <div
                         className={`hamburger ${menuOpen ? 'active' : ''}`}
                         onClick={() => setMenuOpen(!menuOpen)}
@@ -124,10 +123,9 @@ export default function Home() {
                         <span className="bar"></span>
                     </div>
 
-                    {/* Menü Linkleri */}
                     <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
                         <li><a href="#anasayfa">Ana Sayfa</a></li>
-                        <li><a href="#hizmetler">Hizmetler</a></li>
+                        <li><a href="#hizmetler">Hizmetlerimiz</a></li>
                         <li><a href="#galeri">Galeri</a></li>
                         <li><a href="#hakkimizda">Hakkımızda</a></li>
                         <li><a href="#iletisim">İletişim</a></li>
@@ -136,9 +134,10 @@ export default function Home() {
                 </nav>
             </header>
 
+            {/* HERO SLIDER - TAM EKRAN */}
             <section id="anasayfa" className="hero">
                 <div className="hero-slider">
-                    <div className="slide active"></div>
+                    <div className="slide"></div>
                     <div className="slide"></div>
                     <div className="slide"></div>
                     <div className="slide"></div>
@@ -146,14 +145,24 @@ export default function Home() {
                 </div>
                 <div className="hero-overlay"></div>
                 <div className="hero-content">
-                    <h1>Evinize Zarafet Katın</h1>
-                    <p>Profesyonel Perde ve Dekorasyon Çözümleri</p>
-                    <a href="#iletisim" className="cta-button">Hemen İletişime Geçin</a>
+                    <h1 className="hero-title">Evinize Zarafet Katın</h1>
+                    <p className="hero-subtitle">Profesyonel Perde ve Dekorasyon Çözümleri</p>
+                    <a href="#iletisim" className="cta-button">
+                        <span>Hemen İletişime Geçin</span>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                    </a>
                 </div>
+                <div className="scroll-indicator"></div>
             </section>
 
+            {/* HİZMETLER */}
             <section id="hizmetler">
-                <h2 className="section-title">Hizmetlerimiz</h2>
+                <div className="section-header">
+                    <h2 className="section-title">Hizmetlerimiz</h2>
+                    <p className="section-subtitle">Kaliteli ürünler ve profesyonel hizmet anlayışı ile yanınızdayız</p>
+                </div>
                 <div className="services-grid">
                     <div className="service-card">
                         <div className="service-icon">🪟</div>
@@ -163,7 +172,7 @@ export default function Home() {
                     <div className="service-card">
                         <div className="service-icon">✨</div>
                         <h3>Tül Perde</h3>
-                        <p>Işık geçiren zarif tül perdelerle mekanlarınıza ferahlık katın</p>
+                        <p>Işık geçiren zarif tül perdelerle mekanlarınıza ferahlık</p>
                     </div>
                     <div className="service-card">
                         <div className="service-icon">🔲</div>
@@ -178,26 +187,25 @@ export default function Home() {
                     <div className="service-card">
                         <div className="service-icon">🎨</div>
                         <h3>Duvar Kağıdı</h3>
-                        <p>Modern desenler ve renklerle duvarlarınıza yeni bir soluk</p>
+                        <p>Modern desenler ve renklerle duvarlarınıza yeni soluk</p>
                     </div>
                     <div className="service-card">
                         <div className="service-icon">🔧</div>
                         <h3>Montaj Hizmeti</h3>
                         <p>Profesyonel ölçüm ve montaj hizmeti</p>
                     </div>
-                    <div className="service-card">
-                        <div className="service-icon">💼</div>
-                        <h3>Kurumsal Çözümler</h3>
-                        <p>Otel, ofis ve toplu konutlar için özel projeler</p>
-                    </div>
                 </div>
             </section>
 
+            {/* GALERİ */}
             <section id="galeri">
-                <h2 className="section-title">Referans Çalışmalarımız</h2>
+                <div className="section-header">
+                    <h2 className="section-title">Referans Çalışmalarımız</h2>
+                    <p className="section-subtitle">Gerçekleştirdiğimiz projelerden örnekler</p>
+                </div>
                 <div className="gallery-grid">
                     {galleryImages.map((image, index) => (
-                        <div key={index} className="gallery-item" data-title={image.alt}>
+                        <div key={index} className="gallery-item">
                             <Image
                                 src={image.src}
                                 alt={image.alt}
@@ -205,55 +213,70 @@ export default function Home() {
                                 style={{ objectFit: 'cover' }}
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
+                            <div className="gallery-overlay">
+                                <p>{image.alt}</p>
+                            </div>
                         </div>
                     ))}
                 </div>
             </section>
 
+            {/* HAKKIMIZDA */}
             <section id="hakkimizda">
-                <h2 className="section-title">Hakkımızda</h2>
-                <div className="about-content">
-                    <div className="about-text">
+                <div className="about-container">
+                    <div className="about-content">
+                        <h2 className="section-title">Hakkımızda</h2>
                         <h3>Lavinya Perde</h3>
-                        <p>Yıllardır perde ve dekorasyon sektöründe hizmet veren Lavinya Perde, kaliteli ürünler ve güler yüzlü
-                            hizmet anlayışıyla müşterilerine en iyi çözümleri sunmaktadır.</p>
-                        <p>Geniş kumaş seçeneklerimiz, profesyonel ekibimiz ve müşteri memnuniyeti odaklı yaklaşımımızla evinize
-                            değer katıyoruz.</p>
-                        <p>Her projede özenle çalışıyor, detaylara dikkat ediyor ve mekanlarınızı hayalinizdeki gibi
-                            tasarlıyoruz.</p>
+                        <p>Yıllardır perde ve dekorasyon sektöründe hizmet veren Lavinya Perde, kaliteli ürünler ve güler yüzlü hizmet anlayışıyla müşterilerine en iyi çözümleri sunmaktadır.</p>
+                        <p>Geniş kumaş seçeneklerimiz, profesyonel ekibimiz ve müşteri memnuniyeti odaklı yaklaşımımızla evinize değer katıyoruz.</p>
+                        <ul className="about-features">
+                            <li>✓ 10+ Yıllık Deneyim</li>
+                            <li>✓ Profesyonel Ekip</li>
+                            <li>✓ Kaliteli Ürünler</li>
+                            <li>✓ Müşteri Memnuniyeti</li>
+                        </ul>
                     </div>
-                    <div className="about-image">🏠</div>
+                    <div className="about-image">
+                        <div className="about-image-placeholder">🏠</div>
+                    </div>
                 </div>
             </section>
 
+            {/* İLETİŞİM */}
             <section id="iletisim">
-                <h2 className="section-title">İletişim</h2>
+                <div className="section-header">
+                    <h2 className="section-title">İletişim</h2>
+                    <p className="section-subtitle">Bizimle iletişime geçin</p>
+                </div>
                 <div className="contact-grid">
-                    <div className="contact-item">
+                    <div className="contact-card">
                         <div className="contact-icon">📱</div>
                         <h3>Telefon</h3>
-                        <p><a href="tel:+905055102287">+90 505 510 22 87</a></p>
+                        <a href="tel:+905055102287">+90 505 510 22 87</a>
                     </div>
-                    <div className="contact-item">
+                    <div className="contact-card">
                         <div className="contact-icon">📧</div>
                         <h3>E-posta</h3>
-                        <p><a href="mailto:info@lavinyaperde.com">info@lavinyaperde.com</a></p>
+                        <a href="mailto:info@lavinyaperde.com">info@lavinyaperde.com</a>
                     </div>
-                    <div className="contact-item">
+                    <div className="contact-card">
                         <div className="contact-icon">📍</div>
                         <h3>Adres</h3>
                         <p>Balıkesir, Türkiye</p>
                     </div>
-                    <div className="contact-item">
+                    <div className="contact-card">
                         <div className="contact-icon">🕐</div>
                         <h3>Çalışma Saatleri</h3>
-                        <p>Pzt-Cmt: 09:00 - 18:00<br />Pazar: Kapalı</p>
+                        <p>Pzt-Cmt: 09:00 - 18:00<br/>Pazar: Kapalı</p>
                     </div>
                 </div>
             </section>
 
+            {/* FOOTER */}
             <footer>
-                <p>&copy; 2026 Lavinya Perde. Tüm hakları saklıdır.</p>
+                <div className="footer-content">
+                    <p>&copy; 2026 Lavinya Perde. Tüm hakları saklıdır.</p>
+                </div>
             </footer>
         </>
     );
