@@ -29,14 +29,15 @@ export default function Login() {
             body: JSON.stringify({ email, password }),
         });
 
+        const data = await response.json();
+
         if (response.ok) {
-            // ✅ JSON olarak parse et
-            const data = await response.json();
+            // ✅ Token'ı data.token olarak al
             localStorage.setItem("token", data.token);
             router.push("/perde-hesaplama");
         } else {
-            const error = await response.json();
-            alert(error.error || "Hatalı kullanıcı adı veya şifre!");
+            // ✅ Hata mesajını göster
+            alert(data.error || "Hatalı kullanıcı adı veya şifre!");
         }
     } catch (error) {
         console.error("Login hatası:", error);
