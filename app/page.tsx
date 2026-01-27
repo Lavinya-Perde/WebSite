@@ -21,22 +21,41 @@ export default function Home() {
     useEffect(() => {
         const checkAuth = async () => {
             const token = localStorage.getItem("token");
-            if (token) {
-                try {
-                    const response = await fetch('/api/verify', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ token })
-                    });
-                    const data = await response.json();
-                    setIsLoggedIn(data.valid);
-                } catch (error) {
-                    setIsLoggedIn(false);
-                }
+            console.log("📌 Token alındı:", token);
+            
+            if (!token) {
+                console.log("❌ Token yok!");
+                setIsLoggedIn(false);
+                return;
+            }
+
+            try {
+                console.log("🔄 Verify API'ye istek gönderiliyor...");
+                const response = await fetch('/api/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+                
+                console.log("📥 Response status:", response.status);
+                const data = await response.json();
+                console.log("📦 Response data:", data);
+                console.log("✅ data.valid:", data.valid);
+                
+                setIsLoggedIn(data.valid === true);
+                console.log("🎯 isLoggedIn set edildi:", data.valid === true);
+            } catch (error) {
+                console.error("❌ Auth check error:", error);
+                setIsLoggedIn(false);
             }
         };
         checkAuth();
     }, []);
+
+    // State değişimini izle
+    useEffect(() => {
+        console.log("🔍 isLoggedIn state değeri:", isLoggedIn);
+    }, [isLoggedIn]);
 
     useEffect(() => {
         // --- SLIDER MANTIĞI ---
@@ -93,6 +112,9 @@ export default function Home() {
         };
     }, []);
 
+    // ✅ Debug için render öncesi log
+    console.log("🖥️ Render'da isLoggedIn:", isLoggedIn);
+
     return (
         <>
             <header>
@@ -132,7 +154,6 @@ export default function Home() {
                 </nav>
             </header>
 
-            {/* ... Geri kalan kodlar aynı ... */}
             <section id="anasayfa" className="hero">
                 <div className="hero-slider">
                     <div className="slide active"></div>
