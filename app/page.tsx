@@ -172,6 +172,7 @@ export default function Home() {
                                 fill
                                 priority={index === 0}
                                 loading={index === 0 ? "eager" : "lazy"}
+                                quality={50}
                                 placeholder="blur"
                                 blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxYTFhMWEiLz48L3N2Zz4="
                                 style={{ objectFit: 'cover' }}
@@ -247,6 +248,8 @@ export default function Home() {
                                 src={image.src}
                                 alt={image.alt}
                                 fill
+                                quality={60}
+                                loading="lazy"
                                 style={{ objectFit: 'cover' }}
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
