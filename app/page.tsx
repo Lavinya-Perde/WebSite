@@ -9,7 +9,7 @@ export default function Home() {
 
     // Galeri resimleri
     const galleryImages = [
-        { src: '/gallery/galeri1.jpg', alt: 'Fon perde uygulaması' },
+        { src: '/gallery/galeri1.jpg', alt: 'Rustik perde uygulaması' },
         { src: '/gallery/galeri2.jpg', alt: 'Tül perde montajı' },
         { src: '/gallery/galeri3.jpg', alt: 'Stor perde sistemi' },
         { src: '/gallery/galeri4.jpg', alt: 'Halı döşeme' },
