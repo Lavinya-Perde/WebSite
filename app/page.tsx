@@ -7,6 +7,15 @@ export default function Home() {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
+    // Slider resimleri
+    const sliderImages = [
+        '/slider1.jpg',
+        '/slider2.jpg',
+        '/slider3.jpg',
+        '/slider4.jpg',
+        '/slider5.jpg',
+    ];
+
     // Galeri resimleri
     const galleryImages = [
         { src: '/gallery/galeri1.jpg', alt: 'Rustik perde uygulaması' },
@@ -137,11 +146,21 @@ export default function Home() {
             {/* HERO SLIDER - TAM EKRAN */}
             <section id="anasayfa" className="hero">
                 <div className="hero-slider">
-                    <div className="slide"></div>
-                    <div className="slide"></div>
-                    <div className="slide"></div>
-                    <div className="slide"></div>
-                    <div className="slide"></div>
+                    {sliderImages.map((src, index) => (
+                        <div key={index} className="slide">
+                            <Image
+                                src={src}
+                                alt={`Slider ${index + 1}`}
+                                fill
+                                priority
+                                loading="eager"
+                                placeholder="blur"
+                                blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxYTFhMWEiLz48L3N2Zz4="
+                                style={{ objectFit: 'cover' }}
+                                sizes="100vw"
+                            />
+                        </div>
+                    ))}
                 </div>
                 <div className="hero-overlay"></div>
                 <div className="hero-content">
@@ -200,7 +219,7 @@ export default function Home() {
             {/* GALERİ */}
             <section id="galeri">
                 <div className="section-header">
-                    <h2 className="section-title">Referans Çalışmalarımız</h2>
+                    <h2 className="section-title">Çalışmalarımız</h2>
                     <p className="section-subtitle">Gerçekleştirdiğimiz projelerden örnekler</p>
                 </div>
                 <div className="gallery-grid">
