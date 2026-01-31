@@ -8,31 +8,61 @@ export default function Home() {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const [currentSlide, setCurrentSlide] = useState<number>(0);
     const [sliderVisible, setSliderVisible] = useState<boolean>(true);
-
-    // Slider resimleri
-    const sliderImages = [
+    const [sliderImages, setSliderImages] = useState<string[]>([
         '/slider1.jpg',
         '/slider2.jpg',
         '/slider3.jpg',
         '/slider4.jpg',
         '/slider5.jpg',
-    ];
-
-    // Galeri resimleri
-    const galleryImages = [
+    ]);
+    const [galleryImages, setGalleryImages] = useState<Array<{ src: string; alt: string }>>([
         { src: '/gallery/galeri1.jpg', alt: 'Rustik perde uygulaması' },
         { src: '/gallery/galeri2.jpg', alt: 'Tül ve fon perde montajı' },
         { src: '/gallery/galeri3.jpg', alt: 'Stor perde sistemi' },
         { src: '/gallery/galeri4.jpg', alt: 'Halı döşeme' },
         { src: '/gallery/galeri5.jpg', alt: 'Duvar kağıdı uygulaması' },
         { src: '/gallery/galeri6.jpg', alt: 'Kurumsal proje' },
-    ];
+    ]);
+
+    // Slider ve galeri görsellerini yükle
+    useEffect(() => {
+        const loadImages = async () => {
+            try {
+                // Slider görselleri
+                const sliderResponse = await fetch('/api/images?service=slider');
+                if (sliderResponse.ok) {
+                    const sliderData = await sliderResponse.json();
+                    if (sliderData.images && sliderData.images.length > 0) {
+                        const paths = sliderData.images.map((img: { path: string }) => img.path);
+                        setSliderImages(paths);
+                    }
+                }
+
+                // Galeri görselleri
+                const galleryResponse = await fetch('/api/images?service=gallery');
+                if (galleryResponse.ok) {
+                    const galleryData = await galleryResponse.json();
+                    if (galleryData.images && galleryData.images.length > 0) {
+                        const items = galleryData.images.map((img: { path: string; name: string }) => ({
+                            src: img.path,
+                            alt: img.name.replace(/\.[^/.]+$/, '')
+                        }));
+                        setGalleryImages(items);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading images:', error);
+            }
+        };
+
+        loadImages();
+    }, []);
 
     // Token kontrolü
     useEffect(() => {
         const checkAuth = async () => {
             const token = localStorage.getItem("token");
-            
+
             if (!token) {
                 setIsLoggedIn(false);
                 return;
@@ -44,7 +74,7 @@ export default function Home() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token })
                 });
-                
+
                 const data = await response.json();
                 setIsLoggedIn(data.valid === true);
             } catch (error) {
@@ -190,6 +220,7 @@ export default function Home() {
                         <li><a href="#hakkimizda">Hakkımızda</a></li>
                         <li><a href="#iletisim">İletişim</a></li>
                         {isLoggedIn && <li><a href="/perde-hesaplama">Hesaplama</a></li>}
+                        {isLoggedIn && <li><a href="/admin">Admin Panel</a></li>}
                     </ul>
                 </nav>
             </header>
@@ -241,36 +272,36 @@ export default function Home() {
                     <p className="section-subtitle">Kaliteli ürünler ve profesyonel hizmet anlayışı ile yanınızdayız</p>
                 </div>
                 <div className="services-grid">
-                    <div className="service-card">
+                    <a href="/fon-perde" className="service-card">
                         <div className="service-icon">🪟</div>
                         <h3>Fon Perde</h3>
                         <p>Kaliteli kumaşlar ve özel dikim ile evinize uygun fon perdeler</p>
-                    </div>
-                    <div className="service-card">
+                    </a>
+                    <a href="/tul-perde" className="service-card">
                         <div className="service-icon">✨</div>
                         <h3>Tül Perde</h3>
                         <p>Işık geçiren zarif tül perdelerle mekanlarınıza ferahlık</p>
-                    </div>
-                    <div className="service-card">
+                    </a>
+                    <a href="/stor-perde" className="service-card">
                         <div className="service-icon">🔲</div>
                         <h3>Stor Perde</h3>
                         <p>Modern ve pratik stor perde sistemleri</p>
-                    </div>
-                    <div className="service-card">
+                    </a>
+                    <a href="/hali" className="service-card">
                         <div className="service-icon">🏠</div>
                         <h3>Halı</h3>
                         <p>Kaliteli ve şık halı modelleri ile mekanlarınıza sıcaklık</p>
-                    </div>
-                    <div className="service-card">
+                    </a>
+                    <a href="/duvar-kagidi" className="service-card">
                         <div className="service-icon">🎨</div>
                         <h3>Duvar Kağıdı</h3>
                         <p>Modern desenler ve renklerle duvarlarınıza yeni soluk</p>
-                    </div>
-                    <div className="service-card">
+                    </a>
+                    <a href="/montaj-hizmeti" className="service-card">
                         <div className="service-icon">🔧</div>
                         <h3>Montaj Hizmeti</h3>
                         <p>Profesyonel ölçüm ve montaj hizmeti</p>
-                    </div>
+                    </a>
                 </div>
             </section>
 

@@ -537,6 +537,10 @@ section {
     position: relative;
     overflow: hidden;
     animation: fadeInUp 0.8s ease both;
+    text-decoration: none;
+    display: block;
+    color: inherit;
+    cursor: pointer;
 }
 
 .service-card:nth-child(1) { animation-delay: 0.1s; }
