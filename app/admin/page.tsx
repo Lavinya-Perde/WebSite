@@ -32,6 +32,35 @@ export default function AdminPanel() {
     const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const notificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+    // Tüm görselleri yükle
+    const loadAllImages = useCallback(async () => {
+        console.log('=== Loading all images ===');
+        const allImages: Record<string, ImageFile[]> = {};
+
+        for (const service of services) {
+            try {
+                console.log(`Fetching images for: ${service.name} (${service.folder})`);
+                const response = await fetch(`/api/images?service=${service.folder}`);
+                console.log(`Response status for ${service.folder}:`, response.status);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(`Images loaded for ${service.folder}:`, data.images?.length || 0);
+                    allImages[service.folder] = data.images || [];
+                } else {
+                    console.error(`Failed to load ${service.folder}:`, response.status);
+                    allImages[service.folder] = [];
+                }
+            } catch (error) {
+                console.error(`Error loading images for ${service.name}:`, error);
+                allImages[service.folder] = [];
+            }
+        }
+
+        console.log('All images loaded:', allImages);
+        setImages(allImages);
+    }, []);
+
     // Auth kontrolü
     useEffect(() => {
         const checkAuth = async () => {
@@ -64,35 +93,6 @@ export default function AdminPanel() {
         };
         checkAuth();
     }, [router, loadAllImages]);
-
-    // Tüm görselleri yükle
-    const loadAllImages = useCallback(async () => {
-        console.log('=== Loading all images ===');
-        const allImages: Record<string, ImageFile[]> = {};
-
-        for (const service of services) {
-            try {
-                console.log(`Fetching images for: ${service.name} (${service.folder})`);
-                const response = await fetch(`/api/images?service=${service.folder}`);
-                console.log(`Response status for ${service.folder}:`, response.status);
-
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log(`Images loaded for ${service.folder}:`, data.images?.length || 0);
-                    allImages[service.folder] = data.images || [];
-                } else {
-                    console.error(`Failed to load ${service.folder}:`, response.status);
-                    allImages[service.folder] = [];
-                }
-            } catch (error) {
-                console.error(`Error loading images for ${service.name}:`, error);
-                allImages[service.folder] = [];
-            }
-        }
-
-        console.log('All images loaded:', allImages);
-        setImages(allImages);
-    }, []);
 
     // Dosya yükleme
     const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
