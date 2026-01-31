@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { list } from '@vercel/blob';
 
 export async function GET(request: NextRequest) {
     try {
@@ -11,47 +10,40 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Service parameter is required' }, { status: 400 });
         }
 
-        // Slider ve gallery için public klasörü altında, services için services klasörü altında
-        let imagesDir: string;
-        let basePath: string;
+        console.log('Fetching images for service:', service);
 
-        if (service === 'slider' || service === 'gallery') {
-            imagesDir = path.join(process.cwd(), 'public', service);
-            basePath = `/${service}`;
-        } else {
-            imagesDir = path.join(process.cwd(), 'public', 'services', service);
-            basePath = `/services/${service}`;
-        }
+        // Vercel Blob'dan servise ait tüm dosyaları al
+        const { blobs } = await list({
+            prefix: `${service}/`,
+        });
 
-        // Klasör yoksa oluştur
-        if (!fs.existsSync(imagesDir)) {
-            fs.mkdirSync(imagesDir, { recursive: true });
-            return NextResponse.json({ images: [] });
-        }
+        console.log('Found blobs:', blobs.length);
 
-        // Dosyaları oku
-        const files = fs.readdirSync(imagesDir);
-
-        const images = files
-            .filter(file => {
-                const ext = path.extname(file).toLowerCase();
-                return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+        // Sadece görsel dosyalarını filtrele ve formatla
+        const images = blobs
+            .filter(blob => {
+                const ext = blob.pathname.split('.').pop()?.toLowerCase() || '';
+                return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
             })
-            .map(file => {
-                const filePath = path.join(imagesDir, file);
-                const stats = fs.statSync(filePath);
-
-                return {
-                    name: file,
-                    path: `${basePath}/${file}`,
-                    size: stats.size
-                };
-            })
-            .sort((a, b) => a.name.localeCompare(b.name));
+            .map(blob => ({
+                name: blob.pathname.split('/').pop() || blob.pathname,
+                path: blob.url,
+                url: blob.url,
+                size: blob.size,
+                uploadedAt: blob.uploadedAt
+            }))
+            .sort((a, b) => {
+                // En yeni yüklenenler önce
+                return new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime();
+            });
 
         return NextResponse.json({ images });
     } catch (error) {
-        console.error('Error reading images:', error);
-        return NextResponse.json({ error: 'Failed to read images' }, { status: 500 });
+        console.error('Error reading images from Vercel Blob:', error);
+        return NextResponse.json({
+            error: 'Failed to read images',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        }, { status: 500 });
     }
 }
+

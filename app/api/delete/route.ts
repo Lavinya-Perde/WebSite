@@ -1,47 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { del } from '@vercel/blob';
 
 export async function DELETE(request: NextRequest) {
     try {
         const body = await request.json();
-        const { service, filename } = body;
+        const { service, filename, url } = body;
 
-        if (!service || !filename) {
+        if (!service || (!filename && !url)) {
             return NextResponse.json(
-                { error: 'Service and filename are required' },
+                { error: 'Service and filename or url are required' },
                 { status: 400 }
             );
         }
 
-        // Slider ve gallery için public klasörü altında, services için services klasörü altında
-        let filePath: string;
+        // URL varsa direkt onu kullan, yoksa path'den oluştur
+        let blobUrl = url;
 
-        if (service === 'slider' || service === 'gallery') {
-            filePath = path.join(process.cwd(), 'public', service, filename);
-        } else {
-            filePath = path.join(process.cwd(), 'public', 'services', service, filename);
+        if (!blobUrl && filename) {
+            // Filename'den URL oluştur (images API'den gelen path aslında URL)
+            console.log('Deleting by filename:', filename);
+            // Eğer filename URL değilse, servise göre path oluştur
+            if (!filename.startsWith('http')) {
+                blobUrl = `${service}/${filename}`;
+            } else {
+                blobUrl = filename;
+            }
         }
 
-        // Dosya var mı kontrol et
-        if (!fs.existsSync(filePath)) {
-            return NextResponse.json(
-                { error: 'File not found' },
-                { status: 404 }
-            );
-        }
+        console.log('Deleting blob:', blobUrl);
 
-        // Güvenlik kontrolü - sadece izin verilen klasörler altındaki dosyalar silinebilir
-        const publicDir = path.join(process.cwd(), 'public');
-        if (!filePath.startsWith(publicDir)) {
-            return NextResponse.json(
-                { error: 'Invalid file path' },
-                { status: 403 }
-            );
-        }
-
-        // Dosyayı sil
-        fs.unlinkSync(filePath);
+        // Vercel Blob'dan sil
+        await del(blobUrl);
 
         return NextResponse.json({
             success: true,
@@ -49,9 +38,10 @@ export async function DELETE(request: NextRequest) {
         });
     } catch (error) {
         console.error('Delete error:', error);
-        return NextResponse.json(
-            { error: 'Failed to delete file' },
-            { status: 500 }
-        );
+        return NextResponse.json({
+            error: 'Failed to delete file',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        }, { status: 500 });
     }
 }
+

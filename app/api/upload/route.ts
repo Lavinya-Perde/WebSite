@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { put } from '@vercel/blob';
 
 export async function POST(request: NextRequest) {
     try {
-        console.log('=== Upload API Called ===');
+        console.log('=== Upload API Called (Vercel Blob) ===');
         const formData = await request.formData();
         const service = formData.get('service') as string;
         const files = formData.getAll('files') as File[];
@@ -22,55 +21,36 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'No files provided' }, { status: 400 });
         }
 
-        // Slider ve gallery için public klasörü altında, services için services klasörü altında
-        let uploadDir: string;
-
-        if (service === 'slider' || service === 'gallery') {
-            uploadDir = path.join(process.cwd(), 'public', service);
-        } else {
-            uploadDir = path.join(process.cwd(), 'public', 'services', service);
-        }
-
-        console.log('Upload directory:', uploadDir);
-        console.log('Directory exists:', fs.existsSync(uploadDir));
-
-        // Klasör yoksa oluştur
-        if (!fs.existsSync(uploadDir)) {
-            console.log('Creating directory:', uploadDir);
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-
-        const uploadedFiles: string[] = [];
+        const uploadedFiles: Array<{ name: string; url: string }> = [];
 
         for (const file of files) {
             console.log('Processing file:', file.name, 'Size:', file.size);
-            const buffer = Buffer.from(await file.arrayBuffer());
-            console.log('Buffer created, size:', buffer.length);
 
             // Dosya uzantısını al
-            const ext = path.extname(file.name).toLowerCase();
+            const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
 
-            // Benzersiz dosya adı oluştur: servis-timestamp.ext
+            // Benzersiz dosya adı oluştur: servis/timestamp-random.ext
             const timestamp = Date.now();
             const randomSuffix = Math.random().toString(36).substring(2, 8);
-            const fileName = `${service}-${timestamp}-${randomSuffix}${ext}`;
+            const fileName = `${service}/${timestamp}-${randomSuffix}.${ext}`;
 
-            const filePath = path.join(uploadDir, fileName);
-            console.log('Saving to:', filePath);
+            console.log('Uploading to Vercel Blob:', fileName);
 
-            // Dosyayı kaydet
-            fs.writeFileSync(filePath, buffer);
-            console.log('File saved successfully');
+            // Vercel Blob'a yükle
+            const blob = await put(fileName, file, {
+                access: 'public',
+                addRandomSuffix: false,
+            });
 
-            // Dosyanın gerçekten kaydedildiğini doğrula
-            const fileExists = fs.existsSync(filePath);
-            const fileSize = fileExists ? fs.statSync(filePath).size : 0;
-            console.log('File exists after write:', fileExists, 'Size:', fileSize);
+            console.log('Blob uploaded:', blob.url);
 
-            uploadedFiles.push(fileName);
+            uploadedFiles.push({
+                name: fileName,
+                url: blob.url
+            });
         }
 
-        console.log('Upload complete. Files:', uploadedFiles);
+        console.log('Upload complete. Files:', uploadedFiles.length);
         return NextResponse.json({
             success: true,
             files: uploadedFiles,
@@ -78,6 +58,10 @@ export async function POST(request: NextRequest) {
         });
     } catch (error) {
         console.error('Upload error:', error);
-        return NextResponse.json({ error: 'Failed to upload files' }, { status: 500 });
+        return NextResponse.json({
+            error: 'Failed to upload files',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        }, { status: 500 });
     }
 }
+

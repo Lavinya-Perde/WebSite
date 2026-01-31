@@ -7,7 +7,9 @@ import Image from "next/image";
 interface ImageFile {
     name: string;
     path: string;
+    url: string;
     size: number;
+    uploadedAt?: string;
 }
 
 const services = [
@@ -146,7 +148,7 @@ export default function AdminPanel() {
     };
 
     // Dosya silme
-    const handleDelete = async (imageName: string) => {
+    const handleDelete = async (imageName: string, imageUrl: string) => {
         if (deleteConfirm !== imageName) {
             setDeleteConfirm(imageName);
             setTimeout(() => setDeleteConfirm(null), 3000);
@@ -159,7 +161,8 @@ export default function AdminPanel() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     service: activeTab,
-                    filename: imageName
+                    filename: imageName,
+                    url: imageUrl
                 }),
             });
 
@@ -168,7 +171,8 @@ export default function AdminPanel() {
                 setDeleteConfirm(null);
                 showNotification('Görsel başarıyla silindi!', 'success');
             } else {
-                showNotification('Silme sırasında hata oluştu!', 'error');
+                const data = await response.json();
+                showNotification(data.error || 'Silme sırasında hata oluştu!', 'error');
             }
         } catch (error) {
             console.error('Delete error:', error);
@@ -308,7 +312,7 @@ export default function AdminPanel() {
                                 </div>
                                 <button
                                     className={`delete-btn ${deleteConfirm === img.name ? 'confirm' : ''}`}
-                                    onClick={() => handleDelete(img.name)}
+                                    onClick={() => handleDelete(img.name, img.url || img.path)}
                                 >
                                     {deleteConfirm === img.name ? 'Emin misiniz?' : '🗑️ Sil'}
                                 </button>
