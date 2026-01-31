@@ -17,6 +17,22 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60 * 60 * 24 * 365, // 1 yıl cache
   },
+
+  // Vercel deployment optimization
+  outputFileTracingRoot: undefined,
+  outputFileTracingIncludes: {},
+  outputFileTracingExcludes: {
+    '*': [
+      'node_modules/@swc/core-linux-x64-gnu',
+      'node_modules/@swc/core-linux-x64-musl',
+      'node_modules/@esbuild/linux-x64',
+      '.git/**/*',
+    ],
+    '/api/**/*': [
+      'public/**/*',
+      '.next/cache/**/*',
+    ],
+  },
 };
 
 export default nextConfig;
