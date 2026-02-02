@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
+import sharp from 'sharp';
+
+// Optimizasyon ayarları
+const MAX_WIDTH = 1920;
+const MAX_HEIGHT = 1080;
+const QUALITY = 80;
 
 export async function POST(request: NextRequest) {
     try {
@@ -26,20 +32,39 @@ export async function POST(request: NextRequest) {
         for (const file of files) {
             console.log('Processing file:', file.name, 'Size:', file.size);
 
-            // Dosya uzantısını al
-            const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+            // Dosyayı buffer'a çevir
+            const arrayBuffer = await file.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
 
-            // Benzersiz dosya adı oluştur: servis/timestamp-random.ext
+            // Sharp ile optimize et
+            let optimizedBuffer: Buffer;
+            try {
+                optimizedBuffer = await sharp(buffer, { failOnError: false })
+                    .resize(MAX_WIDTH, MAX_HEIGHT, {
+                        fit: 'inside',
+                        withoutEnlargement: true
+                    })
+                    .jpeg({ quality: QUALITY, progressive: true })
+                    .toBuffer();
+
+                console.log(`Optimized: ${file.size} -> ${optimizedBuffer.length} bytes`);
+            } catch (sharpError) {
+                console.error('Sharp optimization failed, using original:', sharpError);
+                optimizedBuffer = buffer;
+            }
+
+            // Benzersiz dosya adı oluştur (her zaman .jpg olarak kaydet)
             const timestamp = Date.now();
             const randomSuffix = Math.random().toString(36).substring(2, 8);
-            const fileName = `${service}/${timestamp}-${randomSuffix}.${ext}`;
+            const fileName = `${service}/${timestamp}-${randomSuffix}.jpg`;
 
             console.log('Uploading to Vercel Blob:', fileName);
 
             // Vercel Blob'a yükle
-            const blob = await put(fileName, file, {
+            const blob = await put(fileName, optimizedBuffer, {
                 access: 'public',
                 addRandomSuffix: false,
+                contentType: 'image/jpeg',
             });
 
             console.log('Blob uploaded:', blob.url);
@@ -64,4 +89,3 @@ export async function POST(request: NextRequest) {
         }, { status: 500 });
     }
 }
-
