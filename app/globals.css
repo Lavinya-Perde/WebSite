@@ -424,18 +424,25 @@ nav a:hover::after {
 
 @media (max-width: 768px) {
     .slider-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 1.5rem;
-        opacity: 0.8;
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        opacity: 0.6;
+        top: auto;
+        bottom: 30px;
+        transform: none;
     }
 
     .slider-btn-prev {
-        left: 15px;
+        left: calc(50% - 50px);
     }
 
     .slider-btn-next {
-        right: 15px;
+        right: calc(50% - 50px);
+    }
+
+    .hero-content {
+        padding-bottom: 100px;
     }
 }
 
@@ -937,26 +944,45 @@ footer {
     .logo-text {
         font-size: 1.1rem;
     }
-    
+
     .hero-title {
         font-size: 2rem;
     }
-    
+
     .hero-subtitle {
         font-size: 1rem;
     }
-    
+
     .cta-button {
         padding: 1rem 2rem;
         font-size: 0.95rem;
     }
-    
+
     .section-title {
         font-size: 1.85rem;
     }
-    
+
     .about-features li {
         font-size: 1rem;
+    }
+
+    .slider-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+        bottom: 20px;
+    }
+
+    .slider-btn-prev {
+        left: calc(50% - 45px);
+    }
+
+    .slider-btn-next {
+        right: calc(50% - 45px);
+    }
+
+    .hero-content {
+        padding-bottom: 80px;
     }
 }
 
