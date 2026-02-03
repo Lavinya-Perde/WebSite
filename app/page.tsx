@@ -43,10 +43,22 @@ export default function Home() {
                 if (galleryResponse.ok) {
                     const galleryData = await galleryResponse.json();
                     if (galleryData.images && galleryData.images.length > 0) {
-                        const items = galleryData.images.map((img: { path: string; name: string }) => ({
-                            src: img.path,
-                            alt: img.name.replace(/\.[^/.]+$/, '')
-                        }));
+                        // Dosya adlarından anlamlı açıklamalara eşleşme
+                        const altTextMap: Record<string, string> = {
+                            'galeri1': 'Rustik perde uygulaması',
+                            'galeri2': 'Tül ve fon perde montajı',
+                            'galeri3': 'Stor perde sistemi',
+                            'galeri4': 'Halı döşeme',
+                            'galeri5': 'Duvar kağıdı uygulaması',
+                            'galeri6': 'Kurumsal proje',
+                        };
+                        const items = galleryData.images.map((img: { path: string; name: string }) => {
+                            const baseName = img.name.replace(/\.[^/.]+$/, '');
+                            return {
+                                src: img.path,
+                                alt: altTextMap[baseName] || baseName
+                            };
+                        });
                         setGalleryImages(items);
                     }
                 }
