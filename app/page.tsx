@@ -4,10 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-    const [menuOpen, setMenuOpen] = useState<boolean>(false);
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const [currentSlide, setCurrentSlide] = useState<number>(0);
-    const [sliderVisible, setSliderVisible] = useState<boolean>(true);
     const [sliderImages, setSliderImages] = useState<string[]>([
         '/slider1.jpg',
         '/slider2.jpg',
@@ -70,32 +67,6 @@ export default function Home() {
         loadImages();
     }, []);
 
-    // Token kontrolü
-    useEffect(() => {
-        const checkAuth = async () => {
-            const token = localStorage.getItem("token");
-
-            if (!token) {
-                setIsLoggedIn(false);
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/verify', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token })
-                });
-
-                const data = await response.json();
-                setIsLoggedIn(data.valid === true);
-            } catch (error) {
-                setIsLoggedIn(false);
-            }
-        };
-        checkAuth();
-    }, []);
-
     // Slider geçişi
     const goToSlide = (index: number) => {
         const slides = document.querySelectorAll('.slide') as NodeListOf<HTMLElement>;
@@ -129,8 +100,6 @@ export default function Home() {
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
-                    setSliderVisible(entry.isIntersecting);
-
                     if (entry.isIntersecting) {
                         // Görünür olduğunda interval'ı başlat
                         if (!interval) {
@@ -179,7 +148,6 @@ export default function Home() {
             if (href) {
                 const target = document.querySelector(href);
                 if (target) {
-                    setMenuOpen(false);
                     target.scrollIntoView({
                         behavior: 'smooth',
                         block: 'start'
@@ -201,42 +169,6 @@ export default function Home() {
 
     return (
         <>
-            {/* HEADER */}
-            <header>
-                <nav>
-                    <div className="logo-container">
-                        <Image
-                            width={50}
-                            height={50}
-                            src="/logo.png"
-                            alt="Lavinya Perde Logo"
-                            className="logo"
-                            priority
-                        />
-                        <span className="logo-text">LAVİNYA PERDE</span>
-                    </div>
-
-                    <div
-                        className={`hamburger ${menuOpen ? 'active' : ''}`}
-                        onClick={() => setMenuOpen(!menuOpen)}
-                    >
-                        <span className="bar"></span>
-                        <span className="bar"></span>
-                        <span className="bar"></span>
-                    </div>
-
-                    <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
-                        <li><a href="#anasayfa">Ana Sayfa</a></li>
-                        <li><a href="#hizmetler">Hizmetlerimiz</a></li>
-                        <li><a href="#galeri">Galeri</a></li>
-                        <li><a href="#hakkimizda">Hakkımızda</a></li>
-                        <li><a href="#iletisim">İletişim</a></li>
-                        {isLoggedIn && <li><a href="/perde-hesaplama">Hesaplama</a></li>}
-                        {isLoggedIn && <li><a href="/admin">Admin Panel</a></li>}
-                    </ul>
-                </nav>
-            </header>
-
             {/* HERO SLIDER - TAM EKRAN */}
             <section id="anasayfa" className="hero">
                 <div className="hero-slider">
@@ -261,7 +193,7 @@ export default function Home() {
                 <div className="hero-content">
                     <h1 className="hero-title">Evinize Zarafet Katın</h1>
                     <p className="hero-subtitle">Profesyonel Perde ve Dekorasyon Çözümleri</p>
-                    <a href="#iletisim" className="cta-button">
+                    <a href="/iletisim" className="cta-button">
                         <span>Hemen İletişime Geçin</span>
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                             <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -364,42 +296,6 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* İLETİŞİM */}
-            <section id="iletisim">
-                <div className="section-header">
-                    <h2 className="section-title">İletişim</h2>
-                    <p className="section-subtitle">Bizimle iletişime geçin</p>
-                </div>
-                <div className="contact-grid">
-                    <div className="contact-card">
-                        <div className="contact-icon">📱</div>
-                        <h3>Telefon</h3>
-                        <a href="tel:+905055102287">+90 505 510 22 87</a>
-                    </div>
-                    <div className="contact-card">
-                        <div className="contact-icon">📧</div>
-                        <h3>E-posta</h3>
-                        <a href="mailto:info@lavinyaperde.com">info@lavinyaperde.com</a>
-                    </div>
-                    <div className="contact-card">
-                        <div className="contact-icon">📍</div>
-                        <h3>Adres</h3>
-                        <p>Balıkesir, Türkiye</p>
-                    </div>
-                    <div className="contact-card">
-                        <div className="contact-icon">🕐</div>
-                        <h3>Çalışma Saatleri</h3>
-                        <p>Pzt-Cmt: 09:00 - 18:00<br/>Pazar: Kapalı</p>
-                    </div>
-                </div>
-            </section>
-
-            {/* FOOTER */}
-            <footer>
-                <div className="footer-content">
-                    <p>&copy; 2026 Lavinya Perde. Tüm hakları saklıdır.</p>
-                </div>
-            </footer>
         </>
     );
 }
