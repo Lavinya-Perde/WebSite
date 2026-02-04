@@ -5,6 +5,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function FonPerdePage() {
+    // SEO için sayfa başlığını güncelle
+    useEffect(() => {
+        document.title = "Fon Perde Modelleri | Lavinya Perde";
+    }, []);
     const [images, setImages] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
 

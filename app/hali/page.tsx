@@ -8,6 +8,11 @@ export default function HaliPage() {
     const [images, setImages] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
 
+    // SEO için sayfa başlığını güncelle
+    useEffect(() => {
+        document.title = "Halı Modelleri | Lavinya Perde";
+    }, []);
+
     // API'den görselleri yükle
     useEffect(() => {
         const loadImages = async () => {

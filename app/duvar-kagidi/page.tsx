@@ -8,6 +8,11 @@ export default function DuvarKagidiPage() {
     const [images, setImages] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
 
+    // SEO için sayfa başlığını güncelle
+    useEffect(() => {
+        document.title = "Duvar Kağıdı Modelleri | Lavinya Perde";
+    }, []);
+
     // API'den görselleri yükle
     useEffect(() => {
         const loadImages = async () => {

@@ -8,6 +8,11 @@ export default function MontajHizmetiPage() {
     const [images, setImages] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
 
+    // SEO için sayfa başlığını güncelle
+    useEffect(() => {
+        document.title = "Profesyonel Montaj Hizmeti | Lavinya Perde";
+    }, []);
+
     // API'den görselleri yükle
     useEffect(() => {
         const loadImages = async () => {

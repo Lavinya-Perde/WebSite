@@ -8,6 +8,11 @@ export default function StorPerdePage() {
     const [images, setImages] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
 
+    // SEO için sayfa başlığını güncelle
+    useEffect(() => {
+        document.title = "Stor Perde Modelleri | Lavinya Perde";
+    }, []);
+
     // API'den görselleri yükle
     useEffect(() => {
         const loadImages = async () => {
