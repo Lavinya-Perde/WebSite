@@ -51,12 +51,13 @@ export default function IletisimPage() {
                             href="https://www.google.com/maps/dir//Lavinya+Perde,+Bah%C3%A7elievler,+Mehmetcik+Cd.+No:60%2FA,+10100+Alt%C4%B1eyl%C3%BCl%2FBal%C4%B1kesir/@39.6323099,27.8955978,14z"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="directions-button"
+                            className="directions-link"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
-                            </svg>
-                            Yol Tarifi Al
+                            <div className="info-icon">📍</div>
+                            <div className="info-text">
+                                <h3>Yol Tarifi Al</h3>
+                                <p>Google Maps ile yol tarifi alın</p>
+                            </div>
                         </a>
                     </div>
 
@@ -171,39 +172,34 @@ export default function IletisimPage() {
                     color: #b89dd4;
                 }
 
-                .directions-button {
+                .directions-link {
                     display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 0.75rem;
-                    width: 100%;
-                    margin-top: 2rem;
-                    background: linear-gradient(135deg, #8b669e 0%, #6d5380 100%);
-                    color: white;
-                    padding: 1.2rem 2rem;
-                    border-radius: 50px;
+                    gap: 1rem;
+                    margin-top: 1.5rem;
+                    padding: 0.75rem;
+                    border-radius: 12px;
                     text-decoration: none;
-                    font-weight: 600;
-                    font-size: 1.1rem;
                     transition: all 0.3s ease;
-                    box-shadow: 0 10px 30px rgba(139, 102, 158, 0.4);
-                    border: 2px solid transparent;
+                    background: rgba(139, 102, 158, 0.1);
+                    border: 1px solid rgba(139, 102, 158, 0.2);
                 }
 
-                .directions-button:hover {
-                    background: linear-gradient(135deg, #9b76ae 0%, #7d6390 100%);
-                    transform: translateY(-3px);
-                    box-shadow: 0 15px 40px rgba(139, 102, 158, 0.6);
-                    border-color: rgba(184, 157, 212, 0.3);
+                .directions-link:hover {
+                    background: rgba(139, 102, 158, 0.2);
+                    border-color: rgba(139, 102, 158, 0.4);
                 }
 
-                .directions-button:active {
-                    transform: translateY(-1px);
-                    box-shadow: 0 8px 25px rgba(139, 102, 158, 0.5);
+                .directions-link .info-icon {
+                    background: linear-gradient(135deg, #8b669e 0%, #6d5380 100%);
                 }
 
-                .directions-button svg {
-                    flex-shrink: 0;
+                .directions-link .info-text h3 {
+                    color: #b89dd4;
+                }
+
+                .directions-link .info-text p {
+                    color: #b0b0b0;
+                    font-size: 0.85rem;
                 }
 
                 .map-container {
