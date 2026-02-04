@@ -37,21 +37,10 @@ export default function HaliPage() {
 
     return (
         <div className="service-page">
-            <header className="service-header">
-                <nav className="service-nav">
-                    <Link href="/#hizmetler" className="back-button">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                        Geri Dön
-                    </Link>
-                    <h1>Halı</h1>
-                </nav>
-            </header>
-
             <section className="service-hero">
                 <div className="service-hero-content">
-                    <h2>Halı Koleksiyonumuz</h2>
+                    <Link href="/#hizmetler" className="back-link">← Hizmetlere Dön</Link>
+                    <h1>Halı Koleksiyonumuz</h1>
                     <p>Kaliteli ve şık halı modelleri ile mekanlarınıza sıcaklık. Klasik ve modern desenlerle her tarza uygun halılar.</p>
                 </div>
             </section>
@@ -99,46 +88,20 @@ export default function HaliPage() {
                 .service-page {
                     min-height: 100vh;
                     background: #0a0a0a;
+                    padding-top: 80px;
                 }
 
-                .service-header {
-                    background: rgba(10, 10, 10, 0.95);
-                    backdrop-filter: blur(10px);
-                    box-shadow: 0 2px 20px rgba(139, 102, 158, 0.3);
-                    border-bottom: 1px solid rgba(139, 102, 158, 0.2);
-                    position: sticky;
-                    top: 0;
-                    z-index: 100;
-                }
-
-                .service-nav {
-                    max-width: 1200px;
-                    margin: 0 auto;
-                    padding: 1rem 2rem;
-                    display: flex;
-                    align-items: center;
-                    gap: 2rem;
-                }
-
-                .back-button {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
+                .back-link {
+                    display: inline-block;
                     color: #b89dd4;
-                    font-weight: 500;
                     text-decoration: none;
-                    transition: all 0.3s;
+                    margin-bottom: 1.5rem;
+                    font-weight: 500;
+                    transition: color 0.3s;
                 }
 
-                .back-button:hover {
+                .back-link:hover {
                     color: #8b669e;
-                    gap: 0.3rem;
-                }
-
-                .service-nav h1 {
-                    font-size: 1.5rem;
-                    color: #ffffff;
-                    margin: 0;
                 }
 
                 .service-hero {
@@ -154,7 +117,7 @@ export default function HaliPage() {
                     margin: 0 auto;
                 }
 
-                .service-hero h2 {
+                .service-hero h1 {
                     font-size: 2.5rem;
                     margin-bottom: 1rem;
                 }
@@ -271,19 +234,11 @@ export default function HaliPage() {
                 }
 
                 @media (max-width: 768px) {
-                    .service-nav {
-                        padding: 1rem;
-                    }
-
-                    .service-nav h1 {
-                        font-size: 1.2rem;
-                    }
-
                     .service-hero {
                         padding: 3rem 1.5rem;
                     }
 
-                    .service-hero h2 {
+                    .service-hero h1 {
                         font-size: 1.8rem;
                     }
 
