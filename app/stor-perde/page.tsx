@@ -92,16 +92,25 @@ export default function StorPerdePage() {
                 }
 
                 .back-link {
-                    display: inline-block;
-                    color: #b89dd4;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    color: #ffffff;
                     text-decoration: none;
-                    margin-bottom: 1.5rem;
+                    margin-bottom: 2rem;
                     font-weight: 500;
-                    transition: color 0.3s;
+                    font-size: 0.95rem;
+                    padding: 0.6rem 1.2rem;
+                    background: rgba(139, 102, 158, 0.2);
+                    border: 1px solid rgba(139, 102, 158, 0.4);
+                    border-radius: 50px;
+                    transition: all 0.3s;
                 }
 
                 .back-link:hover {
-                    color: #8b669e;
+                    background: rgba(139, 102, 158, 0.4);
+                    border-color: #8b669e;
+                    transform: translateX(-5px);
                 }
 
                 .service-hero {
