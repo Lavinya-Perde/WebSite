@@ -54,6 +54,9 @@ export default function IletisimPage() {
                             rel="noopener noreferrer"
                             className="directions-button"
                         >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                            </svg>
                             Yol Tarifi Al
                         </Link>
                     </div>
@@ -170,24 +173,38 @@ export default function IletisimPage() {
                 }
 
                 .directions-button {
-                    display: inline-block;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.75rem;
                     width: 100%;
-                    text-align: center;
-                    margin-top: 1.5rem;
+                    margin-top: 2rem;
                     background: linear-gradient(135deg, #8b669e 0%, #6d5380 100%);
                     color: white;
-                    padding: 1rem 2rem;
+                    padding: 1.2rem 2rem;
                     border-radius: 50px;
                     text-decoration: none;
                     font-weight: 600;
-                    transition: all 0.3s;
+                    font-size: 1.1rem;
+                    transition: all 0.3s ease;
                     box-shadow: 0 10px 30px rgba(139, 102, 158, 0.4);
+                    border: 2px solid transparent;
                 }
 
                 .directions-button:hover {
-                    background: linear-gradient(135deg, #6d5380 0%, #8b669e 100%);
-                    transform: translateY(-2px);
+                    background: linear-gradient(135deg, #9b76ae 0%, #7d6390 100%);
+                    transform: translateY(-3px);
                     box-shadow: 0 15px 40px rgba(139, 102, 158, 0.6);
+                    border-color: rgba(184, 157, 212, 0.3);
+                }
+
+                .directions-button:active {
+                    transform: translateY(-1px);
+                    box-shadow: 0 8px 25px rgba(139, 102, 158, 0.5);
+                }
+
+                .directions-button svg {
+                    flex-shrink: 0;
                 }
 
                 .map-container {
