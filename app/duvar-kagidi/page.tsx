@@ -39,7 +39,6 @@ export default function DuvarKagidiPage() {
         <div className="service-page">
             <section className="service-hero">
                 <div className="service-hero-content">
-                    <Link href="/#hizmetler" className="back-link">← Hizmetlere Dön</Link>
                     <h1>Duvar Kağıdı Koleksiyonumuz</h1>
                     <p>Modern desenler ve renklerle duvarlarınıza yeni soluk. Geniş desen ve renk seçenekleriyle mekanlarınıza özel dokunuş.</p>
                 </div>
@@ -89,28 +88,6 @@ export default function DuvarKagidiPage() {
                     min-height: 100vh;
                     background: #0a0a0a;
                     padding-top: 80px;
-                }
-
-                .back-link {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    color: #ffffff;
-                    text-decoration: none;
-                    margin-bottom: 2rem;
-                    font-weight: 500;
-                    font-size: 0.95rem;
-                    padding: 0.6rem 1.2rem;
-                    background: rgba(139, 102, 158, 0.2);
-                    border: 1px solid rgba(139, 102, 158, 0.4);
-                    border-radius: 50px;
-                    transition: all 0.3s;
-                }
-
-                .back-link:hover {
-                    background: rgba(139, 102, 158, 0.4);
-                    border-color: #8b669e;
-                    transform: translateX(-5px);
                 }
 
                 .service-hero {
