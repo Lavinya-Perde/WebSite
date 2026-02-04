@@ -2,98 +2,36 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState } from "react";
 
 export default function FonPerdePage() {
     const [images, setImages] = useState<string[]>([]);
-    const [page, setPage] = useState(1);
-    const [loading, setLoading] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
-    const observerTarget = useRef<HTMLDivElement>(null);
+    const [loading, setLoading] = useState(true);
 
-    // Her sayfada yüklenecek görsel sayısı
-    const IMAGES_PER_PAGE = 12;
-
-    // Toplam görsel havuzu (bunları public klasörüne yükleyeceksiniz)
-    const allImages = [
-        '/services/fon-perde/fon1.jpg',
-        '/services/fon-perde/fon2.jpg',
-        '/services/fon-perde/fon3.jpg',
-        '/services/fon-perde/fon4.jpg',
-        '/services/fon-perde/fon5.jpg',
-        '/services/fon-perde/fon6.jpg',
-        '/services/fon-perde/fon7.jpg',
-        '/services/fon-perde/fon8.jpg',
-        '/services/fon-perde/fon9.jpg',
-        '/services/fon-perde/fon10.jpg',
-        '/services/fon-perde/fon11.jpg',
-        '/services/fon-perde/fon12.jpg',
-        '/services/fon-perde/fon13.jpg',
-        '/services/fon-perde/fon14.jpg',
-        '/services/fon-perde/fon15.jpg',
-        '/services/fon-perde/fon16.jpg',
-        '/services/fon-perde/fon17.jpg',
-        '/services/fon-perde/fon18.jpg',
-        '/services/fon-perde/fon19.jpg',
-        '/services/fon-perde/fon20.jpg',
-        // Daha fazla görsel ekleyebilirsiniz
-    ];
-
-    // İlk yükleme
+    // API'den görselleri yükle
     useEffect(() => {
-        loadMoreImages();
-    }, []);
-
-    // Sonsuz scroll için Intersection Observer
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            (entries) => {
-                if (entries[0]?.isIntersecting && hasMore && !loading) {
-                    loadMoreImages();
+        const loadImages = async () => {
+            try {
+                const response = await fetch('/api/images?service=fon-perde');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.images && data.images.length > 0) {
+                        const urls = data.images.map((img: { path: string }) => img.path);
+                        setImages(urls);
+                    }
                 }
-            },
-            { threshold: 0.1 }
-        );
-
-        const currentTarget = observerTarget.current;
-        if (currentTarget) {
-            observer.observe(currentTarget);
-        }
-
-        return () => {
-            if (currentTarget) {
-                observer.unobserve(currentTarget);
+            } catch (error) {
+                console.error('Error loading images:', error);
+            } finally {
+                setLoading(false);
             }
         };
-    }, [hasMore, loading, page]);
 
-    const loadMoreImages = useCallback(() => {
-        if (loading || !hasMore) return;
-
-        setLoading(true);
-
-        // Simüle edilmiş yükleme gecikmesi (gerçek API'de bu olmayacak)
-        setTimeout(() => {
-            const startIndex = (page - 1) * IMAGES_PER_PAGE;
-            const endIndex = startIndex + IMAGES_PER_PAGE;
-            const newImages = allImages.slice(startIndex, endIndex);
-
-            if (newImages.length > 0) {
-                setImages(prev => [...prev, ...newImages]);
-                setPage(prev => prev + 1);
-            }
-
-            if (endIndex >= allImages.length) {
-                setHasMore(false);
-            }
-
-            setLoading(false);
-        }, 500);
-    }, [page, loading, hasMore]);
+        loadImages();
+    }, []);
 
     return (
         <div className="service-page">
-            {/* Header */}
             <header className="service-header">
                 <nav className="service-nav">
                     <Link href="/#hizmetler" className="back-button">
@@ -106,7 +44,6 @@ export default function FonPerdePage() {
                 </nav>
             </header>
 
-            {/* Hero Section */}
             <section className="service-hero">
                 <div className="service-hero-content">
                     <h2>Fon Perde Koleksiyonumuz</h2>
@@ -114,44 +51,35 @@ export default function FonPerdePage() {
                 </div>
             </section>
 
-            {/* Gallery Grid */}
             <section className="service-gallery">
-                <div className="gallery-container">
-                    {images.map((image, index) => (
-                        <div key={`${image}-${index}`} className="service-gallery-item">
-                            <Image
-                                src={image}
-                                alt={`Fon Perde ${index + 1}`}
-                                fill
-                                quality={75}
-                                loading="lazy"
-                                style={{ objectFit: 'cover' }}
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
-                        </div>
-                    ))}
-                </div>
-
-                {/* Loading Indicator */}
-                {loading && (
+                {loading ? (
                     <div className="loading-indicator">
                         <div className="spinner"></div>
                         <p>Yükleniyor...</p>
                     </div>
-                )}
-
-                {/* Observer Target */}
-                <div ref={observerTarget} className="observer-target"></div>
-
-                {/* End Message */}
-                {!hasMore && images.length > 0 && (
-                    <div className="end-message">
-                        <p>Tüm görseller yüklendi</p>
+                ) : images.length === 0 ? (
+                    <div className="empty-state">
+                        <p>Henüz görsel eklenmedi</p>
+                    </div>
+                ) : (
+                    <div className="gallery-container">
+                        {images.map((image, index) => (
+                            <div key={`${image}-${index}`} className="service-gallery-item">
+                                <Image
+                                    src={image}
+                                    alt={`Fon Perde ${index + 1}`}
+                                    fill
+                                    quality={75}
+                                    loading="lazy"
+                                    style={{ objectFit: 'cover' }}
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                />
+                            </div>
+                        ))}
                     </div>
                 )}
             </section>
 
-            {/* Contact CTA */}
             <section className="service-cta">
                 <div className="service-cta-content">
                     <h3>Fon Perde İçin Teklif Alın</h3>
@@ -286,15 +214,11 @@ export default function FonPerdePage() {
                     100% { transform: rotate(360deg); }
                 }
 
-                .observer-target {
-                    height: 20px;
-                }
-
-                .end-message {
+                .empty-state {
                     text-align: center;
-                    padding: 2rem;
-                    color: #b0b0b0;
-                    font-size: 1.1rem;
+                    padding: 4rem 2rem;
+                    color: #666;
+                    font-size: 1.2rem;
                 }
 
                 .service-cta {

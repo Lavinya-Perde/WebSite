@@ -2,88 +2,33 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState } from "react";
 
 export default function StorPerdePage() {
     const [images, setImages] = useState<string[]>([]);
-    const [page, setPage] = useState(1);
-    const [loading, setLoading] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
-    const observerTarget = useRef<HTMLDivElement>(null);
+    const [loading, setLoading] = useState(true);
 
-    const IMAGES_PER_PAGE = 12;
-
-    const allImages = [
-        '/services/stor-perde/stor1.jpg',
-        '/services/stor-perde/stor2.jpg',
-        '/services/stor-perde/stor3.jpg',
-        '/services/stor-perde/stor4.jpg',
-        '/services/stor-perde/stor5.jpg',
-        '/services/stor-perde/stor6.jpg',
-        '/services/stor-perde/stor7.jpg',
-        '/services/stor-perde/stor8.jpg',
-        '/services/stor-perde/stor9.jpg',
-        '/services/stor-perde/stor10.jpg',
-        '/services/stor-perde/stor11.jpg',
-        '/services/stor-perde/stor12.jpg',
-        '/services/stor-perde/stor13.jpg',
-        '/services/stor-perde/stor14.jpg',
-        '/services/stor-perde/stor15.jpg',
-        '/services/stor-perde/stor16.jpg',
-        '/services/stor-perde/stor17.jpg',
-        '/services/stor-perde/stor18.jpg',
-        '/services/stor-perde/stor19.jpg',
-        '/services/stor-perde/stor20.jpg',
-    ];
-
+    // API'den görselleri yükle
     useEffect(() => {
-        loadMoreImages();
-    }, []);
-
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            (entries) => {
-                if (entries[0]?.isIntersecting && hasMore && !loading) {
-                    loadMoreImages();
+        const loadImages = async () => {
+            try {
+                const response = await fetch('/api/images?service=stor-perde');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.images && data.images.length > 0) {
+                        const urls = data.images.map((img: { path: string }) => img.path);
+                        setImages(urls);
+                    }
                 }
-            },
-            { threshold: 0.1 }
-        );
-
-        const currentTarget = observerTarget.current;
-        if (currentTarget) {
-            observer.observe(currentTarget);
-        }
-
-        return () => {
-            if (currentTarget) {
-                observer.unobserve(currentTarget);
+            } catch (error) {
+                console.error('Error loading images:', error);
+            } finally {
+                setLoading(false);
             }
         };
-    }, [hasMore, loading, page]);
 
-    const loadMoreImages = useCallback(() => {
-        if (loading || !hasMore) return;
-
-        setLoading(true);
-
-        setTimeout(() => {
-            const startIndex = (page - 1) * IMAGES_PER_PAGE;
-            const endIndex = startIndex + IMAGES_PER_PAGE;
-            const newImages = allImages.slice(startIndex, endIndex);
-
-            if (newImages.length > 0) {
-                setImages(prev => [...prev, ...newImages]);
-                setPage(prev => prev + 1);
-            }
-
-            if (endIndex >= allImages.length) {
-                setHasMore(false);
-            }
-
-            setLoading(false);
-        }, 500);
-    }, [page, loading, hasMore]);
+        loadImages();
+    }, []);
 
     return (
         <div className="service-page">
@@ -107,34 +52,30 @@ export default function StorPerdePage() {
             </section>
 
             <section className="service-gallery">
-                <div className="gallery-container">
-                    {images.map((image, index) => (
-                        <div key={`${image}-${index}`} className="service-gallery-item">
-                            <Image
-                                src={image}
-                                alt={`Stor Perde ${index + 1}`}
-                                fill
-                                quality={75}
-                                loading="lazy"
-                                style={{ objectFit: 'cover' }}
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
-                        </div>
-                    ))}
-                </div>
-
-                {loading && (
+                {loading ? (
                     <div className="loading-indicator">
                         <div className="spinner"></div>
                         <p>Yükleniyor...</p>
                     </div>
-                )}
-
-                <div ref={observerTarget} className="observer-target"></div>
-
-                {!hasMore && images.length > 0 && (
-                    <div className="end-message">
-                        <p>Tüm görseller yüklendi</p>
+                ) : images.length === 0 ? (
+                    <div className="empty-state">
+                        <p>Henüz görsel eklenmedi</p>
+                    </div>
+                ) : (
+                    <div className="gallery-container">
+                        {images.map((image, index) => (
+                            <div key={`${image}-${index}`} className="service-gallery-item">
+                                <Image
+                                    src={image}
+                                    alt={`Stor Perde ${index + 1}`}
+                                    fill
+                                    quality={75}
+                                    loading="lazy"
+                                    style={{ objectFit: 'cover' }}
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                />
+                            </div>
+                        ))}
                     </div>
                 )}
             </section>
@@ -273,15 +214,11 @@ export default function StorPerdePage() {
                     100% { transform: rotate(360deg); }
                 }
 
-                .observer-target {
-                    height: 20px;
-                }
-
-                .end-message {
+                .empty-state {
                     text-align: center;
-                    padding: 2rem;
-                    color: #b0b0b0;
-                    font-size: 1.1rem;
+                    padding: 4rem 2rem;
+                    color: #666;
+                    font-size: 1.2rem;
                 }
 
                 .service-cta {

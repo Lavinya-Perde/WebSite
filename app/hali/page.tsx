@@ -2,88 +2,33 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState } from "react";
 
 export default function HaliPage() {
     const [images, setImages] = useState<string[]>([]);
-    const [page, setPage] = useState(1);
-    const [loading, setLoading] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
-    const observerTarget = useRef<HTMLDivElement>(null);
+    const [loading, setLoading] = useState(true);
 
-    const IMAGES_PER_PAGE = 12;
-
-    const allImages = [
-        '/services/hali/hali1.jpg',
-        '/services/hali/hali2.jpg',
-        '/services/hali/hali3.jpg',
-        '/services/hali/hali4.jpg',
-        '/services/hali/hali5.jpg',
-        '/services/hali/hali6.jpg',
-        '/services/hali/hali7.jpg',
-        '/services/hali/hali8.jpg',
-        '/services/hali/hali9.jpg',
-        '/services/hali/hali10.jpg',
-        '/services/hali/hali11.jpg',
-        '/services/hali/hali12.jpg',
-        '/services/hali/hali13.jpg',
-        '/services/hali/hali14.jpg',
-        '/services/hali/hali15.jpg',
-        '/services/hali/hali16.jpg',
-        '/services/hali/hali17.jpg',
-        '/services/hali/hali18.jpg',
-        '/services/hali/hali19.jpg',
-        '/services/hali/hali20.jpg',
-    ];
-
+    // API'den görselleri yükle
     useEffect(() => {
-        loadMoreImages();
-    }, []);
-
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            (entries) => {
-                if (entries[0]?.isIntersecting && hasMore && !loading) {
-                    loadMoreImages();
+        const loadImages = async () => {
+            try {
+                const response = await fetch('/api/images?service=hali');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.images && data.images.length > 0) {
+                        const urls = data.images.map((img: { path: string }) => img.path);
+                        setImages(urls);
+                    }
                 }
-            },
-            { threshold: 0.1 }
-        );
-
-        const currentTarget = observerTarget.current;
-        if (currentTarget) {
-            observer.observe(currentTarget);
-        }
-
-        return () => {
-            if (currentTarget) {
-                observer.unobserve(currentTarget);
+            } catch (error) {
+                console.error('Error loading images:', error);
+            } finally {
+                setLoading(false);
             }
         };
-    }, [hasMore, loading, page]);
 
-    const loadMoreImages = useCallback(() => {
-        if (loading || !hasMore) return;
-
-        setLoading(true);
-
-        setTimeout(() => {
-            const startIndex = (page - 1) * IMAGES_PER_PAGE;
-            const endIndex = startIndex + IMAGES_PER_PAGE;
-            const newImages = allImages.slice(startIndex, endIndex);
-
-            if (newImages.length > 0) {
-                setImages(prev => [...prev, ...newImages]);
-                setPage(prev => prev + 1);
-            }
-
-            if (endIndex >= allImages.length) {
-                setHasMore(false);
-            }
-
-            setLoading(false);
-        }, 500);
-    }, [page, loading, hasMore]);
+        loadImages();
+    }, []);
 
     return (
         <div className="service-page">
@@ -107,34 +52,30 @@ export default function HaliPage() {
             </section>
 
             <section className="service-gallery">
-                <div className="gallery-container">
-                    {images.map((image, index) => (
-                        <div key={`${image}-${index}`} className="service-gallery-item">
-                            <Image
-                                src={image}
-                                alt={`Halı ${index + 1}`}
-                                fill
-                                quality={75}
-                                loading="lazy"
-                                style={{ objectFit: 'cover' }}
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
-                        </div>
-                    ))}
-                </div>
-
-                {loading && (
+                {loading ? (
                     <div className="loading-indicator">
                         <div className="spinner"></div>
                         <p>Yükleniyor...</p>
                     </div>
-                )}
-
-                <div ref={observerTarget} className="observer-target"></div>
-
-                {!hasMore && images.length > 0 && (
-                    <div className="end-message">
-                        <p>Tüm görseller yüklendi</p>
+                ) : images.length === 0 ? (
+                    <div className="empty-state">
+                        <p>Henüz görsel eklenmedi</p>
+                    </div>
+                ) : (
+                    <div className="gallery-container">
+                        {images.map((image, index) => (
+                            <div key={`${image}-${index}`} className="service-gallery-item">
+                                <Image
+                                    src={image}
+                                    alt={`Halı ${index + 1}`}
+                                    fill
+                                    quality={75}
+                                    loading="lazy"
+                                    style={{ objectFit: 'cover' }}
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                />
+                            </div>
+                        ))}
                     </div>
                 )}
             </section>
@@ -273,15 +214,11 @@ export default function HaliPage() {
                     100% { transform: rotate(360deg); }
                 }
 
-                .observer-target {
-                    height: 20px;
-                }
-
-                .end-message {
+                .empty-state {
                     text-align: center;
-                    padding: 2rem;
-                    color: #b0b0b0;
-                    font-size: 1.1rem;
+                    padding: 4rem 2rem;
+                    color: #666;
+                    font-size: 1.2rem;
                 }
 
                 .service-cta {
