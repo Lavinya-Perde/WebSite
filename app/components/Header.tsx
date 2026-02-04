@@ -67,7 +67,7 @@ export default function Header() {
                     <li><Link href={isHomePage ? "#hizmetler" : "/#hizmetler"} onClick={handleLinkClick}>Hizmetlerimiz</Link></li>
                     <li><Link href={isHomePage ? "#galeri" : "/#galeri"} onClick={handleLinkClick}>Galeri</Link></li>
                     <li><Link href={isHomePage ? "#hakkimizda" : "/#hakkimizda"} onClick={handleLinkClick}>Hakkımızda</Link></li>
-                    <li><Link href={isHomePage ? "#iletisim" : "/#iletisim"} onClick={handleLinkClick}>İletişim</Link></li>
+                    <li><Link href="/iletisim" onClick={handleLinkClick}>İletişim</Link></li>
                     {isLoggedIn && <li><Link href="/perde-hesaplama" onClick={handleLinkClick}>Hesaplama</Link></li>}
                     {isLoggedIn && <li><Link href="/admin" onClick={handleLinkClick}>Admin Panel</Link></li>}
                 </ul>
