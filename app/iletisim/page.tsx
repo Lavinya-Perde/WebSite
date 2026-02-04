@@ -34,7 +34,7 @@ export default function IletisimPage() {
                             <div className="info-icon">📞</div>
                             <div className="info-text">
                                 <h3>Telefon</h3>
-                                <a href="tel:+905555555555">0555 555 55 55</a>
+                                <a href="tel:+905055102287">0505 510 22 87</a>
                             </div>
                         </div>
 
