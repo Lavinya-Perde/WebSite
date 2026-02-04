@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect } from "react";
 
 export default function IletisimPage() {
@@ -48,7 +47,7 @@ export default function IletisimPage() {
                             </div>
                         </div>
 
-                        <Link
+                        <a
                             href="https://www.google.com/maps/dir//Lavinya+Perde,+Bah%C3%A7elievler,+Mehmetcik+Cd.+No:60%2FA,+10100+Alt%C4%B1eyl%C3%BCl%2FBal%C4%B1kesir/@39.6323099,27.8955978,14z"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -58,7 +57,7 @@ export default function IletisimPage() {
                                 <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
                             </svg>
                             Yol Tarifi Al
-                        </Link>
+                        </a>
                     </div>
 
                     <div className="map-container">
