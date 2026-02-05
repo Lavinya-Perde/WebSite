@@ -224,19 +224,21 @@ export default function Home() {
                     {serviceCards.map((service, index) => (
                         <a key={index} href={service.href} className="service-card">
                             {serviceBgImages[service.folder] && (
-                                <>
-                                    <Image
-                                        src={serviceBgImages[service.folder]}
-                                        alt=""
-                                        fill
-                                        quality={30}
-                                        loading="lazy"
-                                        style={{ objectFit: 'cover' }}
-                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                        className="service-card-bg"
-                                    />
-                                    <div className="service-card-overlay"></div>
-                                </>
+                                <img
+                                    src={serviceBgImages[service.folder]}
+                                    alt=""
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover',
+                                        opacity: 0.15,
+                                        zIndex: 0,
+                                        pointerEvents: 'none',
+                                    }}
+                                />
                             )}
                             <div className="service-icon">{service.icon}</div>
                             <h3>{service.title}</h3>
