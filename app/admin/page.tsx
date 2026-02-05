@@ -226,6 +226,19 @@ export default function AdminPanel() {
 
     const currentImages = images[activeTab] || [];
 
+    // Toplam kullanılan alanı hesapla
+    const totalUsedBytes = Object.values(images).flat().reduce((sum, img) => sum + (img.size || 0), 0);
+    const totalLimitGB = 25;
+    const totalUsedGB = totalUsedBytes / (1024 * 1024 * 1024);
+    const usagePercent = Math.min((totalUsedGB / totalLimitGB) * 100, 100);
+    const totalImageCount = Object.values(images).flat().length;
+
+    const formatSize = (bytes: number) => {
+        if (bytes >= 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+        if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+        return `${(bytes / 1024).toFixed(0)} KB`;
+    };
+
     return (
         <div className="admin-panel">
             {/* Notification Popup */}
@@ -248,6 +261,15 @@ export default function AdminPanel() {
             <header className="admin-header">
                 <div className="admin-header-content">
                     <h1>Admin Paneli</h1>
+                    <div className="storage-info">
+                        <div className="storage-text">
+                            <span className="storage-label">{formatSize(totalUsedBytes)} / {totalLimitGB} GB</span>
+                            <span className="storage-count">{totalImageCount} görsel</span>
+                        </div>
+                        <div className="storage-bar">
+                            <div className="storage-fill" style={{ width: `${usagePercent}%` }}></div>
+                        </div>
+                    </div>
                     <button onClick={handleLogout} className="logout-btn">
                         Çıkış Yap
                     </button>
@@ -493,6 +515,7 @@ export default function AdminPanel() {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
+                    gap: 1.5rem;
                 }
 
                 .admin-header h1 {
@@ -501,6 +524,46 @@ export default function AdminPanel() {
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     background-clip: text;
+                    white-space: nowrap;
+                }
+
+                .storage-info {
+                    flex: 1;
+                    max-width: 320px;
+                }
+
+                .storage-text {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 0.4rem;
+                }
+
+                .storage-label {
+                    color: #b89dd4;
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                }
+
+                .storage-count {
+                    color: #666;
+                    font-size: 0.8rem;
+                }
+
+                .storage-bar {
+                    width: 100%;
+                    height: 8px;
+                    background: #2a2a2a;
+                    border-radius: 4px;
+                    overflow: hidden;
+                }
+
+                .storage-fill {
+                    height: 100%;
+                    background: linear-gradient(90deg, #8b669e 0%, #b89dd4 100%);
+                    border-radius: 4px;
+                    transition: width 0.5s ease;
+                    min-width: 2px;
                 }
 
                 .logout-btn {
@@ -681,6 +744,11 @@ export default function AdminPanel() {
                     .admin-header-content {
                         flex-direction: column;
                         gap: 1rem;
+                    }
+
+                    .storage-info {
+                        max-width: 100%;
+                        width: 100%;
                     }
 
                     .service-tabs {
