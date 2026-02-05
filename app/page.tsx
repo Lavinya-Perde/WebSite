@@ -1,7 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+
+const serviceCards = [
+    { href: "/fon-perde", icon: "🪟", title: "Fon Perde", desc: "Kaliteli kumaşlar ve özel dikim ile evinize uygun fon perdeler", folder: "fon-perde" },
+    { href: "/tul-perde", icon: "✨", title: "Tül Perde", desc: "Işık geçiren zarif tül perdelerle mekanlarınıza ferahlık", folder: "tul-perde" },
+    { href: "/stor-perde", icon: "🔲", title: "Stor ve Jaluzi", desc: "Modern ve pratik stor ve jaluzi sistemleri", folder: "stor-perde" },
+    { href: "/hali", icon: "🏠", title: "Halı", desc: "Kaliteli ve şık halı modelleri ile mekanlarınıza sıcaklık", folder: "hali" },
+    { href: "/duvar-kagidi", icon: "🎨", title: "Duvar Kağıdı", desc: "Modern desenler ve renklerle duvarlarınıza yeni soluk", folder: "duvar-kagidi" },
+    { href: "/montaj-hizmeti", icon: "🔧", title: "Montaj Hizmeti", desc: "Profesyonel ölçüm ve montaj hizmeti", folder: "montaj" },
+];
 
 export default function Home() {
     const [currentSlide, setCurrentSlide] = useState<number>(0);
@@ -12,16 +21,9 @@ export default function Home() {
         '/slider4.jpg',
         '/slider5.jpg',
     ]);
-    const [galleryImages, setGalleryImages] = useState<Array<{ src: string; alt: string }>>([
-        { src: '/gallery/galeri1.jpg', alt: 'Rustik perde uygulaması' },
-        { src: '/gallery/galeri2.jpg', alt: 'Tül ve fon perde montajı' },
-        { src: '/gallery/galeri3.jpg', alt: 'Stor perde sistemi' },
-        { src: '/gallery/galeri4.jpg', alt: 'Halı döşeme' },
-        { src: '/gallery/galeri5.jpg', alt: 'Duvar kağıdı uygulaması' },
-        { src: '/gallery/galeri6.jpg', alt: 'Kurumsal proje' },
-    ]);
+    const [serviceBgImages, setServiceBgImages] = useState<Record<string, string>>({});
 
-    // Slider ve galeri görsellerini yükle
+    // Slider ve hizmet kartı görsellerini yükle
     useEffect(() => {
         const loadImages = async () => {
             try {
@@ -35,30 +37,24 @@ export default function Home() {
                     }
                 }
 
-                // Galeri görselleri
-                const galleryResponse = await fetch('/api/images?service=gallery');
-                if (galleryResponse.ok) {
-                    const galleryData = await galleryResponse.json();
-                    if (galleryData.images && galleryData.images.length > 0) {
-                        // Dosya adlarından anlamlı açıklamalara eşleşme
-                        const altTextMap: Record<string, string> = {
-                            'galeri1': 'Rustik perde uygulaması',
-                            'galeri2': 'Tül ve fon perde montajı',
-                            'galeri3': 'Stor perde sistemi',
-                            'galeri4': 'Halı döşeme',
-                            'galeri5': 'Duvar kağıdı uygulaması',
-                            'galeri6': 'Kurumsal proje',
-                        };
-                        const items = galleryData.images.map((img: { path: string; name: string }) => {
-                            const baseName = img.name.replace(/\.[^/.]+$/, '');
-                            return {
-                                src: img.path,
-                                alt: altTextMap[baseName] || baseName
-                            };
-                        });
-                        setGalleryImages(items);
+                // Her hizmet için Vercel Blob'dan rastgele bir görsel çek
+                const bgImages: Record<string, string> = {};
+                const folders = [...new Set(serviceCards.map(s => s.folder))];
+                await Promise.all(folders.map(async (folder) => {
+                    try {
+                        const response = await fetch(`/api/images?service=${folder}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.images && data.images.length > 0) {
+                                const randomIndex = Math.floor(Math.random() * data.images.length);
+                                bgImages[folder] = data.images[randomIndex].path;
+                            }
+                        }
+                    } catch {
+                        // Görsel yüklenemezse sessizce devam et
                     }
-                }
+                }));
+                setServiceBgImages(bgImages);
             } catch (error) {
                 console.error('Error loading images:', error);
             }
@@ -167,12 +163,6 @@ export default function Home() {
         };
     }, []);
 
-    // Hizmet kartları için rastgele arka plan görselleri
-    const shuffledBgImages = useMemo(() => {
-        const shuffled = [...galleryImages].sort(() => Math.random() - 0.5);
-        return shuffled;
-    }, [galleryImages]);
-
     return (
         <>
             {/* HERO SLIDER - TAM EKRAN */}
@@ -222,19 +212,12 @@ export default function Home() {
                     <p className="section-subtitle">Kaliteli ürünler ve profesyonel hizmet anlayışı ile yanınızdayız</p>
                 </div>
                 <div className="services-grid">
-                    {[
-                        { href: "/fon-perde", icon: "🪟", title: "Fon Perde", desc: "Kaliteli kumaşlar ve özel dikim ile evinize uygun fon perdeler" },
-                        { href: "/tul-perde", icon: "✨", title: "Tül Perde", desc: "Işık geçiren zarif tül perdelerle mekanlarınıza ferahlık" },
-                        { href: "/stor-perde", icon: "🔲", title: "Stor ve Jaluzi", desc: "Modern ve pratik stor ve jaluzi sistemleri" },
-                        { href: "/hali", icon: "🏠", title: "Halı", desc: "Kaliteli ve şık halı modelleri ile mekanlarınıza sıcaklık" },
-                        { href: "/duvar-kagidi", icon: "🎨", title: "Duvar Kağıdı", desc: "Modern desenler ve renklerle duvarlarınıza yeni soluk" },
-                        { href: "/montaj-hizmeti", icon: "🔧", title: "Montaj Hizmeti", desc: "Profesyonel ölçüm ve montaj hizmeti" },
-                    ].map((service, index) => (
+                    {serviceCards.map((service, index) => (
                         <a key={index} href={service.href} className="service-card">
-                            {shuffledBgImages.length > 0 && (
+                            {serviceBgImages[service.folder] && (
                                 <>
                                     <Image
-                                        src={shuffledBgImages[index % shuffledBgImages.length].src}
+                                        src={serviceBgImages[service.folder]}
                                         alt=""
                                         fill
                                         quality={30}
