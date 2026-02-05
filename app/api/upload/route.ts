@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
+import { v2 as cloudinary } from 'cloudinary';
 import sharp from 'sharp';
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // Optimizasyon ayarları
 const MAX_WIDTH = 1920;
@@ -9,7 +15,7 @@ const QUALITY = 80;
 
 export async function POST(request: NextRequest) {
     try {
-        console.log('=== Upload API Called (Vercel Blob) ===');
+        console.log('=== Upload API Called (Cloudinary) ===');
         const formData = await request.formData();
         const service = formData.get('service') as string;
         const files = formData.getAll('files') as File[];
@@ -53,25 +59,34 @@ export async function POST(request: NextRequest) {
                 optimizedBuffer = buffer;
             }
 
-            // Benzersiz dosya adı oluştur (her zaman .jpg olarak kaydet)
+            // Benzersiz dosya adı oluştur
             const timestamp = Date.now();
             const randomSuffix = Math.random().toString(36).substring(2, 8);
-            const fileName = `${service}/${timestamp}-${randomSuffix}.jpg`;
+            const publicId = `${service}/${timestamp}-${randomSuffix}`;
 
-            console.log('Uploading to Vercel Blob:', fileName);
+            console.log('Uploading to Cloudinary:', publicId);
 
-            // Vercel Blob'a yükle
-            const blob = await put(fileName, optimizedBuffer, {
-                access: 'public',
-                addRandomSuffix: false,
-                contentType: 'image/jpeg',
+            // Cloudinary'ye yükle
+            const result = await new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
+                cloudinary.uploader.upload_stream(
+                    {
+                        public_id: publicId,
+                        folder: '',
+                        resource_type: 'image',
+                        overwrite: true,
+                    },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result as { secure_url: string; public_id: string });
+                    }
+                ).end(optimizedBuffer);
             });
 
-            console.log('Blob uploaded:', blob.url);
+            console.log('Cloudinary uploaded:', result.secure_url);
 
             uploadedFiles.push({
-                name: fileName,
-                url: blob.url
+                name: result.public_id,
+                url: result.secure_url
             });
         }
 

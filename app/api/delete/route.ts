@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { del } from '@vercel/blob';
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export async function DELETE(request: NextRequest) {
     try {
@@ -13,24 +19,29 @@ export async function DELETE(request: NextRequest) {
             );
         }
 
-        // URL varsa direkt onu kullan, yoksa path'den oluştur
-        let blobUrl = url;
+        // Public ID'yi belirle
+        let publicId: string;
 
-        if (!blobUrl && filename) {
-            // Filename'den URL oluştur (images API'den gelen path aslında URL)
-            console.log('Deleting by filename:', filename);
-            // Eğer filename URL değilse, servise göre path oluştur
-            if (!filename.startsWith('http')) {
-                blobUrl = `${service}/${filename}`;
+        if (url) {
+            // URL'den public_id çıkar: https://res.cloudinary.com/.../upload/v123/folder/file.jpg
+            const parts = url.split('/upload/');
+            if (parts[1]) {
+                // v123456/folder/file.jpg -> folder/file (uzantı ve version kaldır)
+                publicId = parts[1].replace(/^v\d+\//, '').replace(/\.[^/.]+$/, '');
             } else {
-                blobUrl = filename;
+                publicId = `${service}/${filename?.replace(/\.[^/.]+$/, '') || ''}`;
             }
+        } else {
+            // Filename'den public_id oluştur
+            const cleanName = filename.replace(/\.[^/.]+$/, '');
+            publicId = cleanName.includes('/') ? cleanName : `${service}/${cleanName}`;
         }
 
-        console.log('Deleting blob:', blobUrl);
+        console.log('Deleting from Cloudinary:', publicId);
 
-        // Vercel Blob'dan sil
-        await del(blobUrl);
+        const result = await cloudinary.uploader.destroy(publicId);
+
+        console.log('Delete result:', result);
 
         return NextResponse.json({
             success: true,
@@ -44,4 +55,3 @@ export async function DELETE(request: NextRequest) {
         }, { status: 500 });
     }
 }
-

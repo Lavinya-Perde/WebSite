@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { list } from '@vercel/blob';
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export async function GET(request: NextRequest) {
     try {
@@ -12,38 +18,29 @@ export async function GET(request: NextRequest) {
 
         console.log('Fetching images for service:', service);
 
-        // Vercel Blob'dan servise ait tüm dosyaları al
-        const { blobs } = await list({
-            prefix: `${service}/`,
-        });
+        // Cloudinary'den servise ait tüm görselleri al
+        const result = await cloudinary.search
+            .expression(`folder:${service}/*`)
+            .sort_by('created_at', 'desc')
+            .max_results(100)
+            .execute();
 
-        console.log('Found blobs:', blobs.length);
+        console.log('Found images:', result.resources?.length || 0);
 
-        // Sadece görsel dosyalarını filtrele ve formatla
-        const images = blobs
-            .filter(blob => {
-                const ext = blob.pathname.split('.').pop()?.toLowerCase() || '';
-                return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
-            })
-            .map(blob => ({
-                name: blob.pathname.split('/').pop() || blob.pathname,
-                path: blob.url,
-                url: blob.url,
-                size: blob.size,
-                uploadedAt: blob.uploadedAt
-            }))
-            .sort((a, b) => {
-                // En yeni yüklenenler önce
-                return new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime();
-            });
+        const images = (result.resources || []).map((resource: { public_id: string; secure_url: string; bytes: number; created_at: string }) => ({
+            name: resource.public_id.split('/').pop() || resource.public_id,
+            path: resource.secure_url,
+            url: resource.secure_url,
+            size: resource.bytes,
+            uploadedAt: resource.created_at,
+        }));
 
         return NextResponse.json({ images });
     } catch (error) {
-        console.error('Error reading images from Vercel Blob:', error);
+        console.error('Error reading images from Cloudinary:', error);
         return NextResponse.json({
             error: 'Failed to read images',
             details: error instanceof Error ? error.message : 'Unknown error'
         }, { status: 500 });
     }
 }
-

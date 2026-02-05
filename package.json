@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@vercel/blob": "^2.0.1",
+    "cloudinary": "^2.9.0",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "jsonwebtoken": "^9.0.3",

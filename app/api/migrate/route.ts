@@ -1,11 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
+import { NextResponse } from 'next/server';
+import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
 import path from 'path';
 
-export async function POST(request: NextRequest) {
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+export async function POST() {
     try {
-        console.log('=== Starting Migration to Vercel Blob ===');
+        console.log('=== Starting Migration to Cloudinary ===');
 
         const services = [
             { folder: 'slider', path: 'public/slider' },
@@ -44,32 +50,29 @@ export async function POST(request: NextRequest) {
 
             console.log(`Found ${imageFiles.length} images in ${service.folder}`);
 
-            // Her görseli Vercel Blob'a yükle
+            // Her görseli Cloudinary'ye yükle
             for (const file of imageFiles) {
                 try {
                     const filePath = path.join(fullPath, file);
-                    const fileBuffer = fs.readFileSync(filePath);
-                    const ext = path.extname(file).toLowerCase().replace('.', '');
 
-                    // Timestamp ekle ki benzersiz olsun
                     const timestamp = Date.now();
                     const randomSuffix = Math.random().toString(36).substring(2, 8);
-                    const blobPath = `${service.folder}/${timestamp}-${randomSuffix}.${ext}`;
+                    const publicId = `${service.folder}/${timestamp}-${randomSuffix}`;
 
-                    console.log(`Uploading ${file} as ${blobPath}...`);
+                    console.log(`Uploading ${file} as ${publicId}...`);
 
-                    // Vercel Blob'a yükle
-                    const blob = await put(blobPath, fileBuffer, {
-                        access: 'public',
-                        addRandomSuffix: false,
+                    const result = await cloudinary.uploader.upload(filePath, {
+                        public_id: publicId,
+                        resource_type: 'image',
+                        overwrite: true,
                     });
 
                     results[service.folder].success++;
-                    results[service.folder].files.push(blob.url);
-                    console.log(`✓ Uploaded: ${blob.url}`);
+                    results[service.folder].files.push(result.secure_url);
+                    console.log(`Uploaded: ${result.secure_url}`);
 
                 } catch (error) {
-                    console.error(`✗ Failed to upload ${file}:`, error);
+                    console.error(`Failed to upload ${file}:`, error);
                     results[service.folder].failed++;
                 }
             }
