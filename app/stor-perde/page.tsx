@@ -10,7 +10,7 @@ export default function StorPerdePage() {
 
     // SEO için sayfa başlığını güncelle
     useEffect(() => {
-        document.title = "Stor Perde Modelleri | Lavinya Perde";
+        document.title = "Stor ve Jaluzi Sistemleri | Lavinya Perde";
     }, []);
 
     // API'den görselleri yükle
@@ -39,8 +39,8 @@ export default function StorPerdePage() {
         <div className="service-page">
             <section className="service-hero">
                 <div className="service-hero-content">
-                    <h1>Stor Perde Sistemleri</h1>
-                    <p>Modern ve pratik stor perde sistemleri. Işık kontrolü ve estetik çözümlerle yaşam alanlarınızı yeniden tasarlayın.</p>
+                    <h1>Stor ve Jaluzi Sistemleri</h1>
+                    <p>Modern ve pratik stor ve jaluzi sistemleri. Işık kontrolü ve estetik çözümlerle yaşam alanlarınızı yeniden tasarlayın.</p>
                 </div>
             </section>
 
@@ -75,7 +75,7 @@ export default function StorPerdePage() {
 
             <section className="service-cta">
                 <div className="service-cta-content">
-                    <h3>Stor Perde İçin Teklif Alın</h3>
+                    <h3>Stor ve Jaluzi İçin Teklif Alın</h3>
                     <p>Profesyonel ekibimiz size en uygun çözümü sunmak için hazır</p>
                     <Link href="/#iletisim" className="cta-button">
                         İletişime Geçin

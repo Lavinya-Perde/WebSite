@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function Home() {
     const [currentSlide, setCurrentSlide] = useState<number>(0);
@@ -167,6 +167,12 @@ export default function Home() {
         };
     }, []);
 
+    // Hizmet kartları için rastgele arka plan görselleri
+    const shuffledBgImages = useMemo(() => {
+        const shuffled = [...galleryImages].sort(() => Math.random() - 0.5);
+        return shuffled;
+    }, [galleryImages]);
+
     return (
         <>
             {/* HERO SLIDER - TAM EKRAN */}
@@ -216,61 +222,34 @@ export default function Home() {
                     <p className="section-subtitle">Kaliteli ürünler ve profesyonel hizmet anlayışı ile yanınızdayız</p>
                 </div>
                 <div className="services-grid">
-                    <a href="/fon-perde" className="service-card">
-                        <div className="service-icon">🪟</div>
-                        <h3>Fon Perde</h3>
-                        <p>Kaliteli kumaşlar ve özel dikim ile evinize uygun fon perdeler</p>
-                    </a>
-                    <a href="/tul-perde" className="service-card">
-                        <div className="service-icon">✨</div>
-                        <h3>Tül Perde</h3>
-                        <p>Işık geçiren zarif tül perdelerle mekanlarınıza ferahlık</p>
-                    </a>
-                    <a href="/stor-perde" className="service-card">
-                        <div className="service-icon">🔲</div>
-                        <h3>Stor Perde</h3>
-                        <p>Modern ve pratik stor perde sistemleri</p>
-                    </a>
-                    <a href="/hali" className="service-card">
-                        <div className="service-icon">🏠</div>
-                        <h3>Halı</h3>
-                        <p>Kaliteli ve şık halı modelleri ile mekanlarınıza sıcaklık</p>
-                    </a>
-                    <a href="/duvar-kagidi" className="service-card">
-                        <div className="service-icon">🎨</div>
-                        <h3>Duvar Kağıdı</h3>
-                        <p>Modern desenler ve renklerle duvarlarınıza yeni soluk</p>
-                    </a>
-                    <a href="/montaj-hizmeti" className="service-card">
-                        <div className="service-icon">🔧</div>
-                        <h3>Montaj Hizmeti</h3>
-                        <p>Profesyonel ölçüm ve montaj hizmeti</p>
-                    </a>
-                </div>
-            </section>
-
-            {/* GALERİ */}
-            <section id="galeri">
-                <div className="section-header">
-                    <h2 className="section-title">Çalışmalarımız</h2>
-                    <p className="section-subtitle">Gerçekleştirdiğimiz projelerden örnekler</p>
-                </div>
-                <div className="gallery-grid">
-                    {galleryImages.map((image, index) => (
-                        <div key={index} className="gallery-item">
-                            <Image
-                                src={image.src}
-                                alt={image.alt}
-                                fill
-                                quality={60}
-                                loading="lazy"
-                                style={{ objectFit: 'cover' }}
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
-                            <div className="gallery-overlay">
-                                <p>{image.alt}</p>
-                            </div>
-                        </div>
+                    {[
+                        { href: "/fon-perde", icon: "🪟", title: "Fon Perde", desc: "Kaliteli kumaşlar ve özel dikim ile evinize uygun fon perdeler" },
+                        { href: "/tul-perde", icon: "✨", title: "Tül Perde", desc: "Işık geçiren zarif tül perdelerle mekanlarınıza ferahlık" },
+                        { href: "/stor-perde", icon: "🔲", title: "Stor ve Jaluzi", desc: "Modern ve pratik stor ve jaluzi sistemleri" },
+                        { href: "/hali", icon: "🏠", title: "Halı", desc: "Kaliteli ve şık halı modelleri ile mekanlarınıza sıcaklık" },
+                        { href: "/duvar-kagidi", icon: "🎨", title: "Duvar Kağıdı", desc: "Modern desenler ve renklerle duvarlarınıza yeni soluk" },
+                        { href: "/montaj-hizmeti", icon: "🔧", title: "Montaj Hizmeti", desc: "Profesyonel ölçüm ve montaj hizmeti" },
+                    ].map((service, index) => (
+                        <a key={index} href={service.href} className="service-card">
+                            {shuffledBgImages.length > 0 && (
+                                <>
+                                    <Image
+                                        src={shuffledBgImages[index % shuffledBgImages.length].src}
+                                        alt=""
+                                        fill
+                                        quality={30}
+                                        loading="lazy"
+                                        style={{ objectFit: 'cover' }}
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                        className="service-card-bg"
+                                    />
+                                    <div className="service-card-overlay"></div>
+                                </>
+                            )}
+                            <div className="service-icon">{service.icon}</div>
+                            <h3>{service.title}</h3>
+                            <p>{service.desc}</p>
+                        </a>
                     ))}
                 </div>
             </section>

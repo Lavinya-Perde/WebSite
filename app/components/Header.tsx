@@ -65,7 +65,6 @@ export default function Header() {
                 <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
                     <li><Link href={isHomePage ? "#anasayfa" : "/#anasayfa"} onClick={handleLinkClick}>Ana Sayfa</Link></li>
                     <li><Link href={isHomePage ? "#hizmetler" : "/#hizmetler"} onClick={handleLinkClick}>Hizmetlerimiz</Link></li>
-                    <li><Link href={isHomePage ? "#galeri" : "/#galeri"} onClick={handleLinkClick}>Galeri</Link></li>
                     <li><Link href={isHomePage ? "#hakkimizda" : "/#hakkimizda"} onClick={handleLinkClick}>Hakkımızda</Link></li>
                     <li><Link href="/iletisim" onClick={handleLinkClick}>İletişim</Link></li>
                     {isLoggedIn && <li><Link href="/perde-hesaplama" onClick={handleLinkClick}>Hesaplama</Link></li>}
