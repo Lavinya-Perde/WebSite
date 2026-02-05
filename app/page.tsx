@@ -21,40 +21,41 @@ export default function Home() {
         '/slider4.jpg',
         '/slider5.jpg',
     ]);
-    const [serviceBgImages, setServiceBgImages] = useState<Record<string, string>>({});
+    const [cardBgImages, setCardBgImages] = useState<string[]>([]);
 
     // Slider ve hizmet kartı görsellerini yükle
     useEffect(() => {
         const loadImages = async () => {
             try {
-                // Slider görselleri
-                const sliderResponse = await fetch('/api/images?service=slider');
-                if (sliderResponse.ok) {
-                    const sliderData = await sliderResponse.json();
-                    if (sliderData.images && sliderData.images.length > 0) {
-                        const paths = sliderData.images.map((img: { path: string }) => img.path);
-                        setSliderImages(paths);
-                    }
-                }
+                // Tüm Vercel Blob görsellerini topla
+                const allImages: string[] = [];
+                const allFolders = ['slider', 'gallery', ...serviceCards.map(s => s.folder)];
+                const uniqueFolders = [...new Set(allFolders)];
 
-                // Her hizmet için Vercel Blob'dan rastgele bir görsel çek
-                const bgImages: Record<string, string> = {};
-                const folders = [...new Set(serviceCards.map(s => s.folder))];
-                await Promise.all(folders.map(async (folder) => {
+                await Promise.all(uniqueFolders.map(async (folder) => {
                     try {
                         const response = await fetch(`/api/images?service=${folder}`);
                         if (response.ok) {
                             const data = await response.json();
                             if (data.images && data.images.length > 0) {
-                                const randomIndex = Math.floor(Math.random() * data.images.length);
-                                bgImages[folder] = data.images[randomIndex].path;
+                                const paths = data.images.map((img: { path: string }) => img.path);
+                                if (folder === 'slider') {
+                                    setSliderImages(paths);
+                                }
+                                allImages.push(...paths);
                             }
                         }
                     } catch {
-                        // Görsel yüklenemezse sessizce devam et
+                        // Sessizce devam et
                     }
                 }));
-                setServiceBgImages(bgImages);
+
+                // Tüm görselleri karıştırıp her kart için bir tane ata
+                if (allImages.length > 0) {
+                    const shuffled = allImages.sort(() => Math.random() - 0.5);
+                    const assigned = serviceCards.map((_, i) => shuffled[i % shuffled.length]);
+                    setCardBgImages(assigned);
+                }
             } catch (error) {
                 console.error('Error loading images:', error);
             }
@@ -214,10 +215,10 @@ export default function Home() {
                 <div className="services-grid">
                     {serviceCards.map((service, index) => (
                         <a key={index} href={service.href} className="service-card">
-                            {serviceBgImages[service.folder] && (
+                            {cardBgImages[index] && (
                                 <>
                                     <Image
-                                        src={serviceBgImages[service.folder]}
+                                        src={cardBgImages[index]}
                                         alt=""
                                         fill
                                         quality={30}
