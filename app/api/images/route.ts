@@ -18,16 +18,24 @@ export async function GET(request: NextRequest) {
 
         console.log('Fetching images for service:', service);
 
-        // Cloudinary'den servise ait tüm görselleri al
-        const result = await cloudinary.search
-            .expression(`folder:${service}/*`)
-            .sort_by('created_at', 'desc')
-            .max_results(100)
-            .execute();
+        // Cloudinary'den servise ait tüm görselleri al (prefix ile)
+        let allResources: { public_id: string; secure_url: string; bytes: number; created_at: string }[] = [];
+        let nextCursor: string | undefined;
 
-        console.log('Found images:', result.resources?.length || 0);
+        do {
+            const result = await cloudinary.api.resources({
+                type: 'upload',
+                prefix: `${service}/`,
+                max_results: 100,
+                ...(nextCursor ? { next_cursor: nextCursor } : {}),
+            });
+            allResources = allResources.concat(result.resources || []);
+            nextCursor = result.next_cursor;
+        } while (nextCursor);
 
-        const images = (result.resources || []).map((resource: { public_id: string; secure_url: string; bytes: number; created_at: string }) => ({
+        console.log('Found images:', allResources.length);
+
+        const images = allResources.map((resource) => ({
             name: resource.public_id.split('/').pop() || resource.public_id,
             path: resource.secure_url,
             url: resource.secure_url,
