@@ -261,15 +261,6 @@ export default function AdminPanel() {
             <header className="admin-header">
                 <div className="admin-header-content">
                     <h1>Admin Paneli</h1>
-                    <div className="storage-info">
-                        <div className="storage-text">
-                            <span className="storage-label">{formatSize(totalUsedBytes)} / {totalLimitGB} GB</span>
-                            <span className="storage-count">{totalImageCount} görsel</span>
-                        </div>
-                        <div className="storage-bar">
-                            <div className="storage-fill" style={{ width: `${usagePercent}%` }}></div>
-                        </div>
-                    </div>
                     <button onClick={handleLogout} className="logout-btn">
                         Çıkış Yap
                     </button>
@@ -290,6 +281,17 @@ export default function AdminPanel() {
                             <span className="badge">{images[service.folder]?.length || 0}</span>
                         </button>
                     ))}
+                </div>
+
+                {/* Storage Info */}
+                <div className="storage-info">
+                    <div className="storage-text">
+                        <span className="storage-label">{formatSize(totalUsedBytes)} / {totalLimitGB} GB kullanıldı</span>
+                        <span className="storage-count">{totalImageCount} görsel</span>
+                    </div>
+                    <div className="storage-bar">
+                        <div className="storage-fill" style={{ width: `${usagePercent}%` }}></div>
+                    </div>
                 </div>
 
                 {/* Upload Section */}
@@ -515,7 +517,6 @@ export default function AdminPanel() {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    gap: 1.5rem;
                 }
 
                 .admin-header h1 {
@@ -524,30 +525,32 @@ export default function AdminPanel() {
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     background-clip: text;
-                    white-space: nowrap;
                 }
 
                 .storage-info {
-                    flex: 1;
-                    max-width: 320px;
+                    background: #1a1a1a;
+                    border: 1px solid rgba(139, 102, 158, 0.2);
+                    border-radius: 12px;
+                    padding: 1rem 1.5rem;
+                    margin-bottom: 1.5rem;
                 }
 
                 .storage-text {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    margin-bottom: 0.4rem;
+                    margin-bottom: 0.5rem;
                 }
 
                 .storage-label {
                     color: #b89dd4;
-                    font-size: 0.85rem;
+                    font-size: 0.9rem;
                     font-weight: 600;
                 }
 
                 .storage-count {
                     color: #666;
-                    font-size: 0.8rem;
+                    font-size: 0.85rem;
                 }
 
                 .storage-bar {
@@ -744,11 +747,6 @@ export default function AdminPanel() {
                     .admin-header-content {
                         flex-direction: column;
                         gap: 1rem;
-                    }
-
-                    .storage-info {
-                        max-width: 100%;
-                        width: 100%;
                     }
 
                     .service-tabs {
