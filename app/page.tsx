@@ -21,14 +21,14 @@ export default function Home() {
         '/slider4.jpg',
         '/slider5.jpg',
     ]);
-    const [cardBgImages, setCardBgImages] = useState<string[]>([]);
+    const [serviceBgImages, setServiceBgImages] = useState<Record<string, string>>({});
 
     // Slider ve hizmet kartı görsellerini yükle
     useEffect(() => {
         const loadImages = async () => {
             try {
-                // Tüm Vercel Blob görsellerini topla
-                const allImages: string[] = [];
+                // Her klasör için görselleri çek
+                const folderImages: Record<string, string[]> = {};
                 const allFolders = ['slider', 'gallery', ...serviceCards.map(s => s.folder)];
                 const uniqueFolders = [...new Set(allFolders)];
 
@@ -39,10 +39,10 @@ export default function Home() {
                             const data = await response.json();
                             if (data.images && data.images.length > 0) {
                                 const paths = data.images.map((img: { path: string }) => img.path);
+                                folderImages[folder] = paths;
                                 if (folder === 'slider') {
                                     setSliderImages(paths);
                                 }
-                                allImages.push(...paths);
                             }
                         }
                     } catch {
@@ -50,12 +50,20 @@ export default function Home() {
                     }
                 }));
 
-                // Tüm görselleri karıştırıp her kart için bir tane ata
-                if (allImages.length > 0) {
-                    const shuffled = allImages.sort(() => Math.random() - 0.5);
-                    const assigned = serviceCards.map((_, i) => shuffled[i % shuffled.length]);
-                    setCardBgImages(assigned);
-                }
+                // Tüm görselleri bir havuzda topla (fallback için)
+                const allImages = Object.values(folderImages).flat();
+
+                // Her hizmet kartı için: kendi klasöründen rastgele, yoksa havuzdan rastgele
+                const bgImages: Record<string, string> = {};
+                serviceCards.forEach((card) => {
+                    const own = folderImages[card.folder];
+                    if (own && own.length > 0) {
+                        bgImages[card.folder] = own[Math.floor(Math.random() * own.length)];
+                    } else if (allImages.length > 0) {
+                        bgImages[card.folder] = allImages[Math.floor(Math.random() * allImages.length)];
+                    }
+                });
+                setServiceBgImages(bgImages);
             } catch (error) {
                 console.error('Error loading images:', error);
             }
@@ -215,10 +223,10 @@ export default function Home() {
                 <div className="services-grid">
                     {serviceCards.map((service, index) => (
                         <a key={index} href={service.href} className="service-card">
-                            {cardBgImages[index] && (
+                            {serviceBgImages[service.folder] && (
                                 <>
                                     <Image
-                                        src={cardBgImages[index]}
+                                        src={serviceBgImages[service.folder]}
                                         alt=""
                                         fill
                                         quality={30}
