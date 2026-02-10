@@ -96,7 +96,38 @@ export default function AdminPanel() {
         checkAuth();
     }, [router, loadAllImages]);
 
-    // Dosya yükleme - direkt Cloudinary'ye upload
+    // Görseli client-side sıkıştır (max 1920x1080, JPEG %80)
+    const compressImage = (file: File): Promise<Blob> => {
+        return new Promise((resolve, reject) => {
+            const img = new window.Image();
+            img.onload = () => {
+                const MAX_W = 1920;
+                const MAX_H = 1080;
+                let { width, height } = img;
+
+                if (width > MAX_W || height > MAX_H) {
+                    const ratio = Math.min(MAX_W / width, MAX_H / height);
+                    width = Math.round(width * ratio);
+                    height = Math.round(height * ratio);
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d')!;
+                ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob(
+                    (blob) => blob ? resolve(blob) : reject(new Error('Sıkıştırma hatası')),
+                    'image/jpeg',
+                    0.8
+                );
+            };
+            img.onerror = () => reject(new Error('Görsel okunamadı'));
+            img.src = URL.createObjectURL(file);
+        });
+    };
+
+    // Dosya yükleme - sıkıştır ve direkt Cloudinary'ye upload
     const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
         if (!files || files.length === 0) return;
@@ -106,7 +137,10 @@ export default function AdminPanel() {
 
         try {
             for (const file of Array.from(files)) {
-                // 1. Sunucudan imzalı upload parametreleri al
+                // 1. Görseli sıkıştır
+                const compressed = await compressImage(file);
+
+                // 2. Sunucudan imzalı upload parametreleri al
                 const sigResponse = await fetch('/api/upload', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -120,9 +154,9 @@ export default function AdminPanel() {
 
                 const { signature, timestamp, public_id, cloud_name, api_key } = await sigResponse.json();
 
-                // 2. Dosyayı direkt Cloudinary'ye yükle
+                // 3. Dosyayı direkt Cloudinary'ye yükle
                 const formData = new FormData();
-                formData.append('file', file);
+                formData.append('file', compressed, 'image.jpg');
                 formData.append('api_key', api_key);
                 formData.append('timestamp', timestamp.toString());
                 formData.append('signature', signature);
