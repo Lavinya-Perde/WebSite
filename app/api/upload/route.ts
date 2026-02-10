@@ -71,7 +71,6 @@ export async function POST(request: NextRequest) {
                 cloudinary.uploader.upload_stream(
                     {
                         public_id: publicId,
-                        folder: '',
                         resource_type: 'image',
                         overwrite: true,
                     },
