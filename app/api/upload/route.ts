@@ -20,11 +20,9 @@ export async function POST(request: Request) {
         const randomSuffix = Math.random().toString(36).substring(2, 8);
         const publicId = `${service}/${timestamp}-${randomSuffix}`;
 
-        // Cloudinary upload parametreleri
         const params = {
             timestamp,
             public_id: publicId,
-            transformation: 'c_limit,w_1920,h_1080,q_80,f_jpg',
         };
 
         const signature = cloudinary.utils.api_sign_request(
@@ -38,7 +36,6 @@ export async function POST(request: Request) {
             public_id: publicId,
             cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
             api_key: process.env.CLOUDINARY_API_KEY,
-            transformation: params.transformation,
         });
     } catch (error) {
         console.error('Signature error:', error);

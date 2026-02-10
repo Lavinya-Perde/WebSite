@@ -118,7 +118,7 @@ export default function AdminPanel() {
                     throw new Error(err.error || 'İmza alınamadı');
                 }
 
-                const { signature, timestamp, public_id, cloud_name, api_key, transformation } = await sigResponse.json();
+                const { signature, timestamp, public_id, cloud_name, api_key } = await sigResponse.json();
 
                 // 2. Dosyayı direkt Cloudinary'ye yükle
                 const formData = new FormData();
@@ -127,7 +127,6 @@ export default function AdminPanel() {
                 formData.append('timestamp', timestamp.toString());
                 formData.append('signature', signature);
                 formData.append('public_id', public_id);
-                formData.append('transformation', transformation);
 
                 const uploadResponse = await fetch(
                     `https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`,
