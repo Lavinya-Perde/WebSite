@@ -96,13 +96,16 @@ export default function AdminPanel() {
         checkAuth();
     }, [router, loadAllImages]);
 
-    // Görseli client-side sıkıştır (max 1920x1080, JPEG %80)
-    const compressImage = (file: File): Promise<Blob> => {
+    // Client-side ön sıkıştırma (Vercel 4.5MB limitini aşmamak için)
+    const preCompressImage = (file: File): Promise<File> => {
+        // 4MB altındaysa direkt gönder
+        if (file.size < 4 * 1024 * 1024) return Promise.resolve(file);
+
         return new Promise((resolve, reject) => {
             const img = new window.Image();
             img.onload = () => {
-                const MAX_W = 1920;
-                const MAX_H = 1080;
+                const MAX_W = 2048;
+                const MAX_H = 2048;
                 let { width, height } = img;
 
                 if (width > MAX_W || height > MAX_H) {
@@ -117,9 +120,12 @@ export default function AdminPanel() {
                 const ctx = canvas.getContext('2d')!;
                 ctx.drawImage(img, 0, 0, width, height);
                 canvas.toBlob(
-                    (blob) => blob ? resolve(blob) : reject(new Error('Sıkıştırma hatası')),
+                    (blob) => {
+                        if (!blob) return reject(new Error('Sıkıştırma hatası'));
+                        resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+                    },
                     'image/jpeg',
-                    0.8
+                    0.9
                 );
             };
             img.onerror = () => reject(new Error('Görsel okunamadı'));
@@ -127,56 +133,35 @@ export default function AdminPanel() {
         });
     };
 
-    // Dosya yükleme - sıkıştır ve direkt Cloudinary'ye upload
+    // Dosya yükleme - client ön sıkıştırma + sunucu Sharp optimizasyon
     const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
         if (!files || files.length === 0) return;
 
         setUploading(true);
-        let successCount = 0;
 
         try {
+            const formData = new FormData();
+            formData.append('service', activeTab);
+
             for (const file of Array.from(files)) {
-                // 1. Görseli sıkıştır
-                const compressed = await compressImage(file);
-
-                // 2. Sunucudan imzalı upload parametreleri al
-                const sigResponse = await fetch('/api/upload', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ service: activeTab }),
-                });
-
-                if (!sigResponse.ok) {
-                    const err = await sigResponse.json();
-                    throw new Error(err.error || 'İmza alınamadı');
-                }
-
-                const { signature, timestamp, public_id, cloud_name, api_key } = await sigResponse.json();
-
-                // 3. Dosyayı direkt Cloudinary'ye yükle
-                const formData = new FormData();
-                formData.append('file', compressed, 'image.jpg');
-                formData.append('api_key', api_key);
-                formData.append('timestamp', timestamp.toString());
-                formData.append('signature', signature);
-                formData.append('public_id', public_id);
-
-                const uploadResponse = await fetch(
-                    `https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`,
-                    { method: 'POST', body: formData }
-                );
-
-                if (!uploadResponse.ok) {
-                    const err = await uploadResponse.json();
-                    throw new Error(err.error?.message || 'Cloudinary yükleme hatası');
-                }
-
-                successCount++;
+                const compressed = await preCompressImage(file);
+                formData.append('files', compressed);
             }
 
-            await loadAllImages();
-            showNotification(`${successCount} görsel başarıyla yüklendi!`, 'success');
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                await loadAllImages();
+                showNotification(`${data.files?.length || 0} görsel başarıyla yüklendi!`, 'success');
+            } else {
+                showNotification(data.error || 'Yükleme sırasında hata oluştu!', 'error');
+            }
         } catch (error) {
             console.error('Upload error:', error);
             const msg = error instanceof Error ? error.message : 'Bilinmeyen hata';
