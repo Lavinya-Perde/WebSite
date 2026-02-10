@@ -96,51 +96,58 @@ export default function AdminPanel() {
         checkAuth();
     }, [router, loadAllImages]);
 
-    // Dosya yükleme
+    // Dosya yükleme - direkt Cloudinary'ye upload
     const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
         if (!files || files.length === 0) return;
 
-        console.log('=== Client Upload Started ===');
-        console.log('Active tab:', activeTab);
-        console.log('Files selected:', files.length);
-        Array.from(files).forEach((file, i) => {
-            console.log(`File ${i + 1}:`, file.name, 'Size:', file.size, 'Type:', file.type);
-        });
-
         setUploading(true);
-        const formData = new FormData();
-        formData.append('service', activeTab);
-
-        Array.from(files).forEach(file => {
-            formData.append('files', file);
-        });
-
-        console.log('FormData created, sending to /api/upload...');
+        let successCount = 0;
 
         try {
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-            });
+            for (const file of Array.from(files)) {
+                // 1. Sunucudan imzalı upload parametreleri al
+                const sigResponse = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ service: activeTab }),
+                });
 
-            console.log('Response status:', response.status);
-            const data = await response.json();
-            console.log('Upload response:', data);
+                if (!sigResponse.ok) {
+                    const err = await sigResponse.json();
+                    throw new Error(err.error || 'İmza alınamadı');
+                }
 
-            if (response.ok) {
-                // Biraz bekle ve sonra görselleri yeniden yükle
-                setTimeout(async () => {
-                    await loadAllImages();
-                    showNotification(`${data.files?.length || 0} görsel başarıyla yüklendi!`, 'success');
-                }, 500);
-            } else {
-                console.error('Upload failed:', data);
-                showNotification(data.error || 'Yükleme sırasında hata oluştu!', 'error');
+                const { signature, timestamp, public_id, cloud_name, api_key, transformation } = await sigResponse.json();
+
+                // 2. Dosyayı direkt Cloudinary'ye yükle
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('api_key', api_key);
+                formData.append('timestamp', timestamp.toString());
+                formData.append('signature', signature);
+                formData.append('public_id', public_id);
+                formData.append('transformation', transformation);
+
+                const uploadResponse = await fetch(
+                    `https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`,
+                    { method: 'POST', body: formData }
+                );
+
+                if (!uploadResponse.ok) {
+                    const err = await uploadResponse.json();
+                    throw new Error(err.error?.message || 'Cloudinary yükleme hatası');
+                }
+
+                successCount++;
             }
+
+            await loadAllImages();
+            showNotification(`${successCount} görsel başarıyla yüklendi!`, 'success');
         } catch (error) {
             console.error('Upload error:', error);
-            showNotification('Yükleme sırasında hata oluştu!', 'error');
+            const msg = error instanceof Error ? error.message : 'Bilinmeyen hata';
+            showNotification(`Yükleme hatası: ${msg}`, 'error');
         } finally {
             setUploading(false);
             event.target.value = '';
