@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const serviceCards = [
     { href: "/fon-perde", icon: "🪟", title: "Fon Perde", desc: "Kaliteli kumaşlar ve özel dikim ile evinize uygun fon perdeler", folder: "fon-perde" },
