@@ -21,6 +21,37 @@
     --shadow-hover: 0 10px 30px rgba(139, 102, 158, 0.4);
 }
 
+/* ========================================
+   SCROLL-REVEAL ANİMASYONLARI
+   (perdecimustafa.com tarzı sağdan/soldan gelme)
+======================================== */
+
+/* Başlangıç durumu — görünmez ve kaymış */
+.reveal {
+    opacity: 0;
+    transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity, transform;
+}
+
+.reveal-left  { transform: translateX(-70px); }
+.reveal-right { transform: translateX(70px); }
+.reveal-up    { transform: translateY(60px); }
+
+/* Viewport'a girince tetiklenir */
+.reveal.is-visible {
+    opacity: 1;
+    transform: translate(0, 0) !important;
+}
+
+/* Gecikme sınıfları */
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.45s; }
+.reveal-delay-5 { transition-delay: 0.6s; }
+.reveal-delay-6 { transition-delay: 0.75s; }
+
+
 html, body {
     margin: 0;
     padding: 0;
@@ -34,6 +65,24 @@ body {
     line-height: 1.6;
     background: var(--bg-dark);
 }
+
+/* ========================================
+   SLIDER KEYFRAMES — perdecimustafa.com 3 katmanlı
+======================================== */
+
+/* KAT 1: Dış — dikey translateY kayma */
+@keyframes slideLeaveUp   { from { transform: translateY(0); }      to { transform: translateY(-100%); } }
+@keyframes slideLeaveDown { from { transform: translateY(0); }      to { transform: translateY(100%); }  }
+@keyframes slideEnterUp   { from { transform: translateY(100%); }   to { transform: translateY(0); }     }
+@keyframes slideEnterDown { from { transform: translateY(-100%); }  to { transform: translateY(0); }     }
+
+/* KAT 2: Orta konteyner — scale(0.5 ↔ 1.0) dramatik zoom */
+@keyframes containerZoomIn  { from { transform: scale(0.5); } to { transform: scale(1.0); } }
+@keyframes containerZoomOut { from { transform: scale(1.0); } to { transform: scale(0.5); } }
+
+/* KAT 3: İç görsel — counter-scale (1.25 ↔ 1.0) */
+@keyframes imgCounterZoomIn  { from { transform: scale(1.25); } to { transform: scale(1.0);  } }
+@keyframes imgCounterZoomOut { from { transform: scale(1.0);  } to { transform: scale(1.25); } }
 
 /* ========================================
    HEADER & NAVİGASYON
@@ -145,7 +194,7 @@ nav a:hover::after {
     justify-content: center;
     text-align: center;
     color: white;
-    margin-top: 80px;
+    margin-top: 0;
     overflow: hidden;
     contain: layout;
 }
@@ -158,8 +207,10 @@ nav a:hover::after {
     height: 100%;
     z-index: 0;
     transform: translateZ(0);
+    overflow: hidden;
     contain: layout style paint;
 }
+
 
 .slide {
     position: absolute;
@@ -168,7 +219,7 @@ nav a:hover::after {
     width: 100%;
     height: 100%;
     opacity: 0;
-    transition: opacity 1s ease-in-out;
+    transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
     background-color: #1a1a1a;
     pointer-events: none;
 }
@@ -188,13 +239,15 @@ nav a:hover::after {
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
-    transform: translateZ(0);
+    transform: scale(1.08) translateZ(0);
     opacity: 0;
-    transition: opacity 0.8s ease-in-out;
+    transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 8s ease-out;
 }
 
+/* Aktif slide: görünür + Ken Burns zoom-out efekti */
 .slide.active img {
     opacity: 1;
+    transform: scale(1) translateZ(0);
 }
 
 .hero-overlay {
@@ -525,29 +578,54 @@ section {
 ======================================== */
 #hizmetler {
     background: var(--bg-dark);
+    max-width: none;
+    padding: 0;
+    width: 100%;
 }
+
+#hizmetler .section-header {
+    max-width: 1200px;
+    margin: 0 auto 3rem auto;
+    padding: 5rem 2rem 0;
+}
+
 
 .services-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+}
+
+@media (max-width: 900px) {
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 560px) {
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .service-card {
-    background: var(--bg-card);
-    padding: 2.5rem 2rem;
-    border-radius: 20px;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow);
-    transition: all 0.4s;
-    text-align: center;
+    background: #111;
+    height: 320px;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    transition: all 0.45s ease;
+    text-align: left;
     position: relative;
     overflow: hidden;
     animation: fadeInUp 0.8s ease both;
     text-decoration: none;
-    display: block;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
     color: inherit;
     cursor: pointer;
+    padding: 0;
 }
 
 .service-card:nth-child(1) { animation-delay: 0.1s; }
@@ -557,56 +635,77 @@ section {
 .service-card:nth-child(5) { animation-delay: 0.5s; }
 .service-card:nth-child(6) { animation-delay: 0.6s; }
 
+/* Karanlık overlay — alt kısım için */
 .service-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(139, 102, 158, 0.1) 0%, transparent 100%);
-    opacity: 0;
-    transition: opacity 0.4s;
-}
-
-.service-card:hover {
-    transform: translateY(-10px);
-    box-shadow: var(--shadow-hover);
-    background: var(--bg-card-hover);
-    border-color: var(--primary-color);
+    inset: 0;
+    background: linear-gradient(
+        to top,
+        rgba(0,0,0,0.85) 0%,
+        rgba(0,0,0,0.3) 50%,
+        rgba(0,0,0,0.05) 100%
+    );
+    z-index: 1;
+    transition: background 0.45s;
 }
 
 .service-card:hover::before {
-    opacity: 1;
+    background: linear-gradient(
+        to top,
+        rgba(109, 83, 128, 0.85) 0%,
+        rgba(139, 102, 158, 0.4) 50%,
+        rgba(0,0,0,0.1) 100%
+    );
+}
+
+/* Hover'da görsel hafifçe büyür */
+.service-card:hover img,
+.service-card:hover [style*='objectFit'] {
+    transform: scale(1.06) !important;
 }
 
 .service-icon {
-    font-size: 4rem;
-    margin-bottom: 1.5rem;
-    filter: drop-shadow(0 0 20px rgba(139, 102, 158, 0.5));
-    transition: transform 0.4s;
-    position: relative;
-    z-index: 2;
+    display: none;
 }
 
-.service-card:hover .service-icon {
-    transform: scale(1.1) rotateY(180deg);
-}
-
+/* Metin alanı */
 .service-card h3 {
-    color: var(--primary-light);
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
+    color: #fff;
+    margin: 0 0 0.4rem 0;
+    font-size: 1.35rem;
     font-weight: 600;
     position: relative;
     z-index: 2;
+    padding: 0 1.5rem;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    transition: color 0.3s;
+}
+
+.service-card:hover h3 {
+    color: #e8d8f5;
 }
 
 .service-card p {
-    color: var(--text-gray);
-    line-height: 1.8;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.5;
     position: relative;
     z-index: 2;
+    font-size: 0.88rem;
+    padding: 0 1.5rem 1.5rem;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+
+/* görsel tam kart boyutu */
+.service-card > img {
+    position: absolute !important;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    opacity: 1 !important;
+    z-index: 0 !important;
+    transition: transform 0.55s ease !important;
 }
 
 
