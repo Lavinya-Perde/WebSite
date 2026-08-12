@@ -2,6 +2,18 @@
 
 import { useEffect } from "react";
 
+const iconProps = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, width: 20, height: 20 };
+
+const PinIcon = () => (
+    <svg {...iconProps}><path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21Z" /><circle cx="12" cy="9.5" r="2.3" /></svg>
+);
+const PhoneIcon = () => (
+    <svg {...iconProps}><path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.2 1L6.6 10.8Z" /></svg>
+);
+const ClockIcon = () => (
+    <svg {...iconProps}><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
+);
+
 export default function IletisimPage() {
     useEffect(() => {
         document.title = "İletişim | Lavinya Perde";
@@ -12,7 +24,7 @@ export default function IletisimPage() {
             <section className="contact-hero">
                 <div className="contact-hero-content">
                     <h1>İletişim</h1>
-                    <p>Bizimle iletişime geçin, size en uygun çözümü sunalım.</p>
+                    <p>Ölçüm randevusu, ürün bilgisi veya teklif için bize ulaşın.</p>
                 </div>
             </section>
 
@@ -22,7 +34,7 @@ export default function IletisimPage() {
                         <h2>İletişim Bilgilerimiz</h2>
 
                         <div className="info-item">
-                            <div className="info-icon">📍</div>
+                            <div className="info-icon"><PinIcon /></div>
                             <div className="info-text">
                                 <h3>Adres</h3>
                                 <p>Bahçelievler, Mehmetcik Cd. No:60/A</p>
@@ -31,7 +43,7 @@ export default function IletisimPage() {
                         </div>
 
                         <div className="info-item">
-                            <div className="info-icon">📞</div>
+                            <div className="info-icon"><PhoneIcon /></div>
                             <div className="info-text">
                                 <h3>Telefon</h3>
                                 <a href="tel:+905055102287">0505 510 22 87</a>
@@ -39,7 +51,7 @@ export default function IletisimPage() {
                         </div>
 
                         <div className="info-item">
-                            <div className="info-icon">🕐</div>
+                            <div className="info-icon"><ClockIcon /></div>
                             <div className="info-text">
                                 <h3>Çalışma Saatleri</h3>
                                 <p>Pazartesi - Cumartesi: 09:00 - 19:00</p>
@@ -53,7 +65,7 @@ export default function IletisimPage() {
                             rel="noopener noreferrer"
                             className="directions-link"
                         >
-                            <div className="info-icon">📍</div>
+                            <div className="info-icon"><PinIcon /></div>
                             <div className="info-text">
                                 <h3>Yol Tarifi Al</h3>
                                 <p>Google Maps ile yol tarifi alın</p>
@@ -75,176 +87,6 @@ export default function IletisimPage() {
                     </div>
                 </div>
             </section>
-
-            <style jsx>{`
-                .contact-page {
-                    min-height: 100vh;
-                    background: #0a0a0a;
-                    padding-top: 80px;
-                }
-
-                .contact-hero {
-                    background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
-                    color: white;
-                    padding: 4rem 2rem;
-                    text-align: center;
-                    border-bottom: 1px solid rgba(139, 102, 158, 0.2);
-                }
-
-                .contact-hero-content {
-                    max-width: 800px;
-                    margin: 0 auto;
-                }
-
-                .contact-hero h1 {
-                    font-size: 2.5rem;
-                    margin-bottom: 1rem;
-                }
-
-                .contact-hero p {
-                    font-size: 1.1rem;
-                    line-height: 1.6;
-                    opacity: 0.95;
-                    color: #b0b0b0;
-                }
-
-                .contact-content {
-                    max-width: 1400px;
-                    margin: 0 auto;
-                    padding: 3rem 2rem;
-                }
-
-                .contact-grid {
-                    display: grid;
-                    grid-template-columns: 1fr 1.5fr;
-                    gap: 3rem;
-                    min-height: 500px;
-                }
-
-                .contact-info {
-                    background: #1a1a1a;
-                    padding: 2.5rem;
-                    border-radius: 20px;
-                    border: 1px solid rgba(139, 102, 158, 0.2);
-                }
-
-                .contact-info h2 {
-                    color: #ffffff;
-                    font-size: 1.5rem;
-                    margin-bottom: 2rem;
-                    padding-bottom: 1rem;
-                    border-bottom: 1px solid rgba(139, 102, 158, 0.3);
-                }
-
-                .info-item {
-                    display: flex;
-                    gap: 1rem;
-                    margin-bottom: 1.5rem;
-                }
-
-                .info-icon {
-                    font-size: 1.5rem;
-                    width: 50px;
-                    height: 50px;
-                    background: rgba(139, 102, 158, 0.2);
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-shrink: 0;
-                }
-
-                .info-text h3 {
-                    color: #b89dd4;
-                    font-size: 1rem;
-                    margin-bottom: 0.3rem;
-                }
-
-                .info-text p,
-                .info-text a {
-                    color: #b0b0b0;
-                    font-size: 0.95rem;
-                    line-height: 1.5;
-                    text-decoration: none;
-                }
-
-                .info-text a:hover {
-                    color: #b89dd4;
-                }
-
-                .directions-link {
-                    display: flex;
-                    gap: 1rem;
-                    margin-top: 1.5rem;
-                    padding: 0.75rem;
-                    border-radius: 12px;
-                    text-decoration: none;
-                    transition: all 0.3s ease;
-                    background: rgba(139, 102, 158, 0.1);
-                    border: 1px solid rgba(139, 102, 158, 0.2);
-                }
-
-                .directions-link:hover {
-                    background: rgba(139, 102, 158, 0.2);
-                    border-color: rgba(139, 102, 158, 0.4);
-                }
-
-                .directions-link .info-icon {
-                    background: linear-gradient(135deg, #8b669e 0%, #6d5380 100%);
-                }
-
-                .directions-link .info-text h3 {
-                    color: #b89dd4;
-                }
-
-                .directions-link .info-text p {
-                    color: #b0b0b0;
-                    font-size: 0.85rem;
-                }
-
-                .map-container {
-                    border-radius: 20px;
-                    overflow: hidden;
-                    border: 1px solid rgba(139, 102, 158, 0.2);
-                    min-height: 500px;
-                }
-
-                .map-container iframe {
-                    display: block;
-                }
-
-                @media (max-width: 968px) {
-                    .contact-grid {
-                        grid-template-columns: 1fr;
-                    }
-
-                    .map-container {
-                        min-height: 400px;
-                    }
-                }
-
-                @media (max-width: 768px) {
-                    .contact-hero {
-                        padding: 3rem 1.5rem;
-                    }
-
-                    .contact-hero h1 {
-                        font-size: 1.8rem;
-                    }
-
-                    .contact-content {
-                        padding: 2rem 1rem;
-                    }
-
-                    .contact-info {
-                        padding: 1.5rem;
-                    }
-
-                    .map-container {
-                        min-height: 350px;
-                    }
-                }
-            `}</style>
         </div>
     );
 }
